@@ -152,34 +152,9 @@ public class ElevatorSubsystem extends BaseSubsystem{
         elevatorIO.elevatorVolt = voltage;
     }
 
-    public void goToLevel1(){
+    public void goToLevel(double level){
         elevatorIO.elevator_pos_control = true;
-        elevatorIO.elevator_target = elevatorConstant.kElevatorL1;
-    }
-
-    public void goToLevel2(){
-        elevatorIO.elevator_pos_control = true;
-        elevatorIO.elevator_target = elevatorConstant.kElevatorL2;
-    }
-
-    public void goToLevel3(){
-        elevatorIO.elevator_pos_control = true;
-        elevatorIO.elevator_target = elevatorConstant.kElevatorL3;
-    }
-
-    public void goToLevel4(){
-        elevatorIO.elevator_pos_control = true;
-        elevatorIO.elevator_target = elevatorConstant.kElevatorL4;
-    }
-
-    public void goToAlgaeLevel1(){
-        elevatorIO.elevator_pos_control = true;
-        elevatorIO.elevator_target = elevatorConstant.kElevatorAlgeaLeveL1;
-    }
-
-    public void goToAlgaeLevel2(){
-        elevatorIO.elevator_pos_control = true;
-        elevatorIO.elevator_target = elevatorConstant.kElevatorAlgeaLeveL2;
+        elevatorIO.elevator_target = level;
     }
 
     public boolean isAtLevel(double level){

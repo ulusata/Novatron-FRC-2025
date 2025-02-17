@@ -4,27 +4,27 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class elevatorConstant {
-    public static int leftMotorId = 2;
-    public static int rightMotorId = 4;
+    public static final int leftMotorId = 2;
+    public static final int rightMotorId = 4;
 
-    public static int limitSwitcherId = 2;
+    public static final int limitSwitcherId = 2;
 
-    public static MotorType leftMotorType = MotorType.kBrushless;
-    public static MotorType rightMotorType = MotorType.kBrushless;
+    public static final MotorType leftMotorType = MotorType.kBrushless;
+    public static final MotorType rightMotorType = MotorType.kBrushless;
 
-    public static IdleMode idleMode = IdleMode.kBrake;
+    public static final IdleMode idleMode = IdleMode.kBrake;
 
     //PID values
-    public static double p = 0.085;
-    public static double i = 0;
-    public static double d = 0;
-    public static double iZone = 5;
+    public static final double p = 0.085;
+    public static final double i = 0;
+    public static final double d = 0;
+    public static final double iZone = 5;
 
     //Trapezoid Profile Constants
-    public static double maxVelocity = 65;
-    public static double maxAcceleration = 200;
+    public static final double maxVelocity = 65;
+    public static final double maxAcceleration = 200;
 
-    public static boolean inverted = false;
+    public static final boolean inverted = false;
 
     //Levels
     public static final double kElevatorL1 = 0;
