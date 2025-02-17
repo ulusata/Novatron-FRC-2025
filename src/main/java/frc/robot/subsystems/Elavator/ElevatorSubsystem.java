@@ -141,7 +141,7 @@ public class ElevatorSubsystem extends BaseSubsystem{
 
     @Override
     protected void outputHighTelemetry() {
-        SmartDashboard.putNumber("Elevator Position", m_leftNeoMotorEncoder.getPosition());
+        SmartDashboard.putNumber("elevator Position", m_leftNeoMotorEncoder.getPosition());
         SmartDashboard.putNumber("Elevator Target Position", elevatorIO.elevator_target);
         SmartDashboard.putNumber("Elevator Voltage", m_leftNeoMotor.getBusVoltage());
         SmartDashboard.putBoolean("Limit Switch", limitSwitch.get());
