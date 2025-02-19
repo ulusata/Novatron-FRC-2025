@@ -36,7 +36,7 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends BaseSubsystem {
   private static SwerveSubsystem mInstance;
 
-  private final VisionSubsystem vision;
+  private VisionSubsystem vision;
 
   public static SwerveSubsystem getInstance() {
     if (mInstance == null) {
@@ -56,8 +56,6 @@ public class SwerveSubsystem extends BaseSubsystem {
   public SwerveSubsystem(File directory) {
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
 
-    vision = VisionSubsystem.getInstance();
-
     try {
       swerveDrive =
           new SwerveParser(directory).createSwerveDrive(5, new Pose2d());
@@ -70,11 +68,14 @@ public class SwerveSubsystem extends BaseSubsystem {
     swerveDrive.stopOdometryThread();
 
     setupPathPlanner();
+
+    vision = VisionSubsystem.getInstance();
+    vision.setPoseSupplier(this::getPose);
   }
 
   @Override
   public void periodic() {
-    addVisionReading();
+    // addVisionReading();
     swerveDrive.updateOdometry();
   }
 
