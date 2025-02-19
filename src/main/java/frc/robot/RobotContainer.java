@@ -6,24 +6,27 @@ package frc.robot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.abstracts.BaseSubsystem;
 import frc.robot.subsystems.Elavator.ElevatorSubsystem;
+import frc.robot.subsystems.Intake.IntakeSubsystem;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
 import frc.robot.subsystems.Vision.VisionSubsystem;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
 
-    private final CommandPS5Controller m_driverController = new CommandPS5Controller(
+    private final CommandXboxController m_driverController = new CommandXboxController(
             0);
     private final CommandXboxController m_driverAsisstant = new CommandXboxController(
             1);
@@ -33,6 +36,10 @@ public class RobotContainer {
     private final SwerveSubsystem drivebase = SwerveSubsystem.getInstance();
     private final ElevatorSubsystem elevator = ElevatorSubsystem.getInstance();
     private final VisionSubsystem vision = VisionSubsystem.getInstance();
+    private final IntakeSubsystem intake = IntakeSubsystem.getInstance();
+
+    private Command fastDrive;
+    private Command preciseDrive;
     
     
     SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -48,19 +55,9 @@ public class RobotContainer {
                 .scaleRotation(-1)
                 .allianceRelativeControl(false);
 
-        Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+        fastDrive = drivebase.driveFieldOriented(driveAngularVelocity);
 
-        drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
-        
-        configureSubsystems();
-        configureBindings();
-
-    }
-
-    public void configureBindings(){
-        m_driverController.square().onTrue(Commands.runOnce(() -> this.drivebase.zeroGyro(), this.drivebase));
-
-       SwerveInputStream driveAngularVelocityPrecise = SwerveInputStream.of(drivebase.getSwerveDrive(),
+        SwerveInputStream driveAngularVelocityPrecise = SwerveInputStream.of(drivebase.getSwerveDrive(),
                 () -> m_driverController.getLeftY() * -1,
                 () -> m_driverController.getLeftX() * -1)
                 .withControllerRotationAxis(m_driverController::getRightX)
@@ -69,45 +66,45 @@ public class RobotContainer {
                 .scaleRotation(-0.3)
                 .allianceRelativeControl(false);
 
-        Command driveFieldOrientedAnglularVelocityPrecise = drivebase.driveFieldOriented(driveAngularVelocityPrecise);
+        preciseDrive = drivebase.driveFieldOriented(driveAngularVelocityPrecise);
 
-        m_driverController.triangle().whileTrue(driveFieldOrientedAnglularVelocityPrecise);
+        drivebase.setDefaultCommand(fastDrive);
+        
+        configureSubsystems();
+        configureBindings();
 
+    }
+
+    public void configureBindings(){
+
+        m_driverController.b().whileTrue(preciseDrive);
+
+        //For test purposes
         Command upElevator = new StartEndCommand(() -> elevator.setElevatorVoltage(2), () -> elevator.setElevatorVoltage(0), elevator);
-       m_driverController.triangle().whileTrue(upElevator);
+       m_driverController.y().whileTrue(upElevator);
 
         Command downElevator = new StartEndCommand(() -> elevator.setElevatorVoltage(-2), () -> elevator.setElevatorVoltage(0), elevator);
-        m_driverController.cross().whileTrue(downElevator);
+        m_driverController.a().whileTrue(downElevator);
 
-       SwerveInputStream alignToAprilTag = SwerveInputStream.of(drivebase.getSwerveDrive(), 
-        () -> vision.autoTranslateY(),
-        () -> vision.autoTranslateX())
-        .withControllerRotationAxis(() -> vision.autoRotate())
-        .deadband(0.1)
-        .scaleTranslation(0.3)
-        .scaleRotation(-0.3)
-        .allianceRelativeControl(false);
+        //Allignment
+         m_driverController.povRight().onTrue(new DeferredCommand(
+                                () -> drivebase.driveToReefRight(), Set.of(drivebase)));
+         m_driverController.povLeft().onTrue(new DeferredCommand(
+                                () -> drivebase.driveToReefLeft(), Set.of(drivebase)));
 
-        Command alignToApriltagCommand = drivebase.drive(alignToAprilTag);
-        m_driverController.cross().whileTrue(alignToApriltagCommand);
+       //Odometry Reset
+       m_driverController.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometryAtStart()));
 
-       /*  SwerveInputStream alingLeft = SwerveInputStream.of(drivebase.getSwerveDrive(), 
-        () -> vision.autoTranslateY(),
-        () -> 0)
-        .withControllerRotationAxis(() -> 0)
-        .deadband(0.1)
-        .scaleTranslation(0.1)
-        .scaleRotation(-0.3)
-        .allianceRelativeControl(false); */
+       m_driverController.x().onTrue(Commands.runOnce(() -> this.drivebase.zeroGyro(), this.drivebase));
 
-        // Command alignLeftCommand = drivebase.driveFieldOriented(alingLeft);
-       // m_driverController.circle().whileTrue(alignLeftCommand);
+
     }
 
     public void configureSubsystems(){
         m_allSubsystems.add(drivebase);
         m_allSubsystems.add(elevator);
         m_allSubsystems.add(vision);
+        m_allSubsystems.add(intake);
     }
 
 
