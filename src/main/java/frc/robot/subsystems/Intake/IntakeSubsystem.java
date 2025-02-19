@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.abstracts.BaseSubsystem;
 import frc.lib.enums.TelemetryVerbosityLevel;
 import frc.robot.constants.intakeConstants;
+import frc.robot.RobotState.IntakeState;
 
 public class IntakeSubsystem extends BaseSubsystem {
 
@@ -36,6 +37,8 @@ public class IntakeSubsystem extends BaseSubsystem {
     private TrapezoidProfile.State mCurState = new TrapezoidProfile.State();
     private TrapezoidProfile.State mGoalState = new TrapezoidProfile.State();
     private double prevUpdateTime = Timer.getFPGATimestamp();
+
+    private IntakeIOInputs intakeIO;
 
     public static IntakeSubsystem getInstance()
     {
@@ -84,8 +87,14 @@ public class IntakeSubsystem extends BaseSubsystem {
 
         m_coralSensor = new DigitalInput(intakeConstants.proximitySensorId);
 
-        
+        intakeIO = new IntakeIOInputs();
+    }
 
+    private static class IntakeIOInputs {
+        double intake_speed = 0.0;
+        double intake_pivot_angle = 0.0;
+        double intake_pivot_voltage = 0.0;
+        boolean is_intake_pos_control = true;
     }
 
     @Override
@@ -95,10 +104,29 @@ public class IntakeSubsystem extends BaseSubsystem {
 
     @Override
     public void periodic() {
+       
     }
+
 
     @Override
     public void writePeriodicOutputs() {
+        double curTime = Timer.getFPGATimestamp();
+        double dt = curTime - prevUpdateTime;
+        prevUpdateTime = curTime;
+        if (intakeIO.is_intake_pos_control) {
+
+            mGoalState.position = intakeIO.intake_pivot_angle;
+            prevUpdateTime = curTime;
+            mCurState = mProfile.calculate(dt, mCurState, mGoalState);
+
+            m_pivotPIDController.setReference(
+                    mCurState.position,
+                    SparkBase.ControlType.kPosition,
+                    ClosedLoopSlot.kSlot0);
+        } else {
+            m_pivotMotor.setVoltage(intakeIO.intake_pivot_voltage);
+        }
+        m_intakeMotor.set(intakeIO.intake_speed);
     }
 
     @Override
@@ -118,6 +146,63 @@ public class IntakeSubsystem extends BaseSubsystem {
     @Override
     protected void outputHighTelemetry() {
 
+    }
+
+    public void setIntakeSpeed(double speed) {
+        intakeIO.intake_speed = speed;
+    }
+
+    public void setIntakePivotVoltage(double voltage) {
+        intakeIO.is_intake_pos_control = false;
+        intakeIO.intake_pivot_voltage = voltage;
+    }
+
+    public void stopIntake() {
+        intakeIO.intake_speed = 0.0;
+    }
+
+    public double getPivotAngle() {
+        return m_pivotEncoder.getPosition();
+    }
+
+    public boolean getIntakeMotorState() {
+        return Math.abs(intakeIO.intake_speed) > 0.0;
+    }
+
+    public boolean getCoralSensor() {
+        return !m_coralSensor.get();
+    }
+
+    public void setPivotAlgeaLevel1Angle() {
+        intakeIO.is_intake_pos_control = true;
+        intakeIO.intake_pivot_angle = intakeConstants.kAlgeaLevel1Angle;
+    }
+
+    public void setPivotBaseAngle() {
+        intakeIO.is_intake_pos_control = true;
+        intakeIO.intake_pivot_angle = intakeConstants.kBaseAngle;
+    }
+
+    public void setPivotZeroAngle() {
+        intakeIO.is_intake_pos_control = true;
+        intakeIO.intake_pivot_angle = 0;
+    }
+
+    public boolean isAtZoroAngle() {
+        return Math.abs(m_pivotEncoder.getPosition() - 0) < intakeConstants.kTolerancePivot;
+    }
+
+    public boolean isAtBaseAngle() {
+        return Math.abs(m_pivotEncoder.getPosition() - intakeConstants.kBaseAngle) < intakeConstants.kTolerancePivot;
+    }
+
+    public boolean isAtAlgeaLevel1Angle() {
+        return Math.abs(
+                m_pivotEncoder.getPosition() - intakeConstants.kAlgeaLevel1Angle) < intakeConstants.kTolerancePivot;
+    }
+
+    public boolean ifAngleLessThanBaseAngle() {
+        return m_pivotEncoder.getPosition() < intakeConstants.kBaseAngle + intakeConstants.kTolerancePivot;
     }
 
 }

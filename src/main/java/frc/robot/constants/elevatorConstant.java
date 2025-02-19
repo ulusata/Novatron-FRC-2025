@@ -36,6 +36,4 @@ public class elevatorConstant {
     public static final double kElevatorAlgeaLeveL2 =   0;
 
     public static final double kToleranceElevator = 1;
-
-
 }

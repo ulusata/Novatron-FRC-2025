@@ -41,4 +41,10 @@ public class intakeConstants{
     
     public static final double AlgeaShootSpeed = 0.8;
 
+    //Angles
+    public static double kAlgeaLevel1Angle = 0;
+    public static double kBaseAngle = 0;
+    public static double kTolerancePivot = 0;
+
+
 }
