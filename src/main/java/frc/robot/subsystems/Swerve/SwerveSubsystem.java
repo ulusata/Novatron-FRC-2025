@@ -9,12 +9,22 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.IdealStartingState;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.util.Units;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Meter;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
@@ -22,9 +32,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 import frc.lib.abstracts.BaseSubsystem;
+import frc.lib.utils.FieldUtils;
 import frc.robot.subsystems.Vision.VisionSubsystem;
 
 import java.io.File;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -36,7 +49,7 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends BaseSubsystem {
   private static SwerveSubsystem mInstance;
 
-  private final VisionSubsystem vision;
+  private VisionSubsystem vision;
 
   public static SwerveSubsystem getInstance() {
     if (mInstance == null) {
@@ -48,6 +61,12 @@ public class SwerveSubsystem extends BaseSubsystem {
   /** Swerve drive object. */
   private final SwerveDrive swerveDrive;
 
+  //Initial positions for both side
+    private final Pose2d blueInitalPosition = new Pose2d(new Translation2d(Meter.of(3), Meter.of(5)),
+      Rotation2d.fromDegrees(0));
+    private static final Pose2d redInitalPosition = new Pose2d(new Translation2d(Meter.of(18), Meter.of(2)),
+      Rotation2d.fromDegrees(180));
+
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
@@ -55,8 +74,6 @@ public class SwerveSubsystem extends BaseSubsystem {
    */
   public SwerveSubsystem(File directory) {
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
-
-    vision = VisionSubsystem.getInstance();
 
     try {
       swerveDrive =
@@ -70,11 +87,14 @@ public class SwerveSubsystem extends BaseSubsystem {
     swerveDrive.stopOdometryThread();
 
     setupPathPlanner();
+
+    vision = VisionSubsystem.getInstance();
+    vision.setPoseSupplier(this::getPose);
   }
 
   @Override
   public void periodic() {
-    addVisionReading();
+    // addVisionReading();
     swerveDrive.updateOdometry();
   }
 
@@ -275,6 +295,15 @@ public class SwerveSubsystem extends BaseSubsystem {
     }
   }
 
+  public void resetOdometryAtStart(){
+    this.zeroGyroWithAlliance();
+    if (isRedAlliance()) {
+      resetOdometry(this.redInitalPosition);
+    } else {
+      resetOdometry(this.blueInitalPosition);
+    }
+  }
+
   /**
    * Gets the current yaw angle of the robot, as reported by the swerve pose estimator in the
    * underlying drivebase. Note, this is not the raw gyro reading, this may be corrected from calls
@@ -360,6 +389,90 @@ public class SwerveSubsystem extends BaseSubsystem {
   public SwerveDrive getSwerveDrive() {
     return swerveDrive;
   }
+
+
+  //Methods for allignment
+
+  public Pose2d getReefPoseLeft() {
+    Pose2d nearestTagPose1 = this.getPose().nearest(FieldUtils.getReefAprilTags());
+    double xOffset1 = (0.71 / 2) + 0.11;
+    double yOffset1 = 0;
+    yOffset1 += 0.165;
+
+    Pose2d targetPose1 = nearestTagPose1.plus(new Transform2d(xOffset1, yOffset1, Rotation2d.k180deg));
+    return targetPose1;
+  }
+
+  public Pose2d getReefPoseRight() {
+    Pose2d nearestTagPose2 = this.getPose().nearest(FieldUtils.getReefAprilTags());
+    double xOffset2 = (0.71 / 2) + 0.11;
+    double yOffset2 = 0;
+    yOffset2 -= 0.173;
+
+    Pose2d targetPose2 = nearestTagPose2.plus(new Transform2d(xOffset2, yOffset2, Rotation2d.k180deg));
+    return targetPose2;
+  }
+  
+  public Command driveToReefRight() {
+    PathConstraints constraints = new PathConstraints(
+        1, 1,
+        Units.degreesToRadians(180), Units.degreesToRadians(180));
+    Pose2d targetPose1 = getReefPoseRight();
+    return (Commands.runOnce(() -> {
+      System.out.println("Drive to reef right finished");
+    })).andThen(AutoBuilder.pathfindToPose(targetPose1, constraints));
+  }
+
+  public Command driveToReefLeft() {
+    PathConstraints constraints = new PathConstraints(
+        1, 1,
+        Units.degreesToRadians(180), Units.degreesToRadians(180));
+    Pose2d targetPose2 = getReefPoseLeft();
+
+    return (Commands.runOnce(() -> {
+      System.out.println("Drive to reef left finished");
+    })).andThen(generateCommand());
+  }
+
+  public Command generateCommand() {
+    return Commands.defer(() -> {
+      return getPathFromWaypoint(getReefPoseLeft());
+    }, Set.of());
+  }
+
+  private Command getPathFromWaypoint(Pose2d waypoint) {
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+        new Pose2d(swerveDrive.getPose().getTranslation(), getPathVelocityHeading(swerveDrive.getFieldVelocity(), waypoint)),
+        waypoint);
+    
+   
+    if (waypoints.get(0).anchor().getDistance(waypoints.get(1).anchor()) < 0.01) {
+      return Commands.none();
+    }
+    PathConstraints kPathConstraints = new PathConstraints(1.75, 1.75, 1/2 * Math.PI, 1 * Math.PI);
+    PathPlannerPath path = new PathPlannerPath(
+        waypoints,
+        kPathConstraints,
+        new IdealStartingState(getVelocityMagnitude(swerveDrive.getFieldVelocity()), swerveDrive.getOdometryHeading()),
+        new GoalEndState(0.0, getReefPoseLeft().getRotation()));
+
+    path.preventFlipping = true;
+
+    return AutoBuilder.followPath(path);
+  }
+
+  private Rotation2d getPathVelocityHeading(ChassisSpeeds cs, Pose2d target) {
+    if (getVelocityMagnitude(cs).in(MetersPerSecond) < 0.01) {
+      var diff = swerveDrive.getPose().minus(target).getTranslation();
+      return (diff.getNorm() < 0.01) ? target.getRotation() : diff.getAngle();
+    }
+    return new Rotation2d(cs.vxMetersPerSecond, cs.vyMetersPerSecond);
+  }
+
+  private LinearVelocity getVelocityMagnitude(ChassisSpeeds cs) {
+    return MetersPerSecond.of(new Translation2d(cs.vxMetersPerSecond, cs.vyMetersPerSecond).getNorm());
+  }
+
 
   @Override
   public void reset() {}

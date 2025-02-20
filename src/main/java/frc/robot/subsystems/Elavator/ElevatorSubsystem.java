@@ -151,4 +151,13 @@ public class ElevatorSubsystem extends BaseSubsystem{
         elevatorIO.elevator_pos_control = false;
         elevatorIO.elevatorVolt = voltage;
     }
+
+    public void goToLevel(double level){
+        elevatorIO.elevator_pos_control = true;
+        elevatorIO.elevator_target = level;
+    }
+
+    public boolean isAtLevel(double level){
+        return Math.abs(m_leftNeoMotorEncoder.getPosition() - (level)) < elevatorConstant.kToleranceElevator;
+    }
 }

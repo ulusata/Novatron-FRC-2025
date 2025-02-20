@@ -44,8 +44,6 @@ public class VisionSubsystem extends BaseSubsystem {
 
     private static VisionSubsystem mInstance;
 
-    private SwerveSubsystem swerveDrive = SwerveSubsystem.getInstance();
-
     public static VisionSubsystem getInstance() {
 
         if (mInstance == null) {
@@ -65,7 +63,7 @@ public class VisionSubsystem extends BaseSubsystem {
         );
 
     
-     private Matrix<N3, N1> singleTagStdDevs;
+    private Matrix<N3, N1> singleTagStdDevs;
 
     private Matrix<N3, N1> multiTagStdDevs;
 
@@ -110,10 +108,14 @@ public class VisionSubsystem extends BaseSubsystem {
     PIDController xPid = new PIDController(1, 0, 0.005);
     PIDController yPid = new PIDController(0.06, 0, 0.005);
 
-    public VisionSubsystem(){
-        this.currentPose = swerveDrive::getPose;
+    public VisionSubsystem(Supplier<Pose2d> poseSub){
+        this.currentPose = poseSub;
         
         setTelemetryVerbosity(TelemetryVerbosityLevel.HIGH);
+    }
+
+    public VisionSubsystem(){
+      setTelemetryVerbosity(TelemetryVerbosityLevel.HIGH);
     }
 
     @Override
@@ -123,7 +125,7 @@ public class VisionSubsystem extends BaseSubsystem {
 
     @Override
     public void periodic(){
-      updatePoseEstimator(camera.getAllUnreadResults().get(0));
+      getEstimatedGlobalPose();
     }
 
     @Override
@@ -211,6 +213,10 @@ public class VisionSubsystem extends BaseSubsystem {
 
     public Pose2d getRobotPose2d(PhotonPipelineResult result){
       return poseEstimator.getReferencePose().toPose2d();
+    }
+
+    public void setPoseSupplier(Supplier<Pose2d> pose){
+      this.currentPose = pose;
     }
 
     public Transform3d getCamToTag(PhotonPipelineResult result) {
