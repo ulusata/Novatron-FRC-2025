@@ -34,7 +34,7 @@ public class ElevatorSubsystem extends BaseSubsystem{
     private RelativeEncoder m_leftNeoMotorEncoder;
 
     private SparkClosedLoopController mLeftPIDController;
-    private DigitalInput limitSwitch;
+    // private DigitalInput limitSwitch;
 
     private TrapezoidProfile mProfile;
     private TrapezoidProfile.State mCurState = new TrapezoidProfile.State();
@@ -65,8 +65,8 @@ public class ElevatorSubsystem extends BaseSubsystem{
                 0,
                 0)
                 .iZone(5)
-                .minOutput(-0.7)
-                .maxOutput(0.1);
+                .minOutput(-0.5)
+                .maxOutput(0.5 );
 
         configLeftNeoMotorEncoder.smartCurrentLimit(40);
         configLeftNeoMotorEncoder.idleMode(IdleMode.kBrake);
@@ -81,7 +81,7 @@ public class ElevatorSubsystem extends BaseSubsystem{
         mProfile = new TrapezoidProfile(
                 new TrapezoidProfile.Constraints(65, 200));
 
-        limitSwitch = new DigitalInput(2);
+        // limitSwitch = new DigitalInput(2);
 
     }
 
@@ -93,9 +93,9 @@ public class ElevatorSubsystem extends BaseSubsystem{
 
     @Override
     public void periodic(){
-        if (!limitSwitch.get()) {
-            m_leftNeoMotorEncoder.setPosition(0);
-        }
+        // if (!limitSwitch.get()) {
+        //     m_leftNeoMotorEncoder.setPosition(0);
+        // }
     }
 
     @Override
@@ -144,7 +144,7 @@ public class ElevatorSubsystem extends BaseSubsystem{
         SmartDashboard.putNumber("elevator Position", m_leftNeoMotorEncoder.getPosition());
         SmartDashboard.putNumber("Elevator Target Position", elevatorIO.elevator_target);
         SmartDashboard.putNumber("Elevator Voltage", m_leftNeoMotor.getBusVoltage());
-        SmartDashboard.putBoolean("Limit Switch", limitSwitch.get());
+        // SmartDashboard.putBoolean("Limit Switch", limitSwitch.get());
     }
 
     public void setElevatorVoltage(double voltage) {
@@ -155,6 +155,10 @@ public class ElevatorSubsystem extends BaseSubsystem{
     public void goToLevel(double level){
         elevatorIO.elevator_pos_control = true;
         elevatorIO.elevator_target = level;
+    }
+
+    public double getPosition(){
+        return m_leftNeoMotorEncoder.getPosition();
     }
 
     public boolean isAtLevel(double level){

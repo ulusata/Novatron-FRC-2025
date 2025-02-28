@@ -8,16 +8,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.abstracts.BaseSubsystem;
+import frc.robot.RobotState.IntakeState;
+import frc.robot.commands.Elevator.GoToLevelCommand;
+import frc.robot.commands.Intake.CoralAdjust;
+import frc.robot.commands.Intake.CoralIntake;
+import frc.robot.constants.elevatorConstant;
+import frc.robot.constants.intakeConstants;
 import frc.robot.subsystems.Elavator.ElevatorSubsystem;
 import frc.robot.subsystems.Intake.IntakeSubsystem;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
@@ -33,9 +37,9 @@ public class RobotContainer {
 
     private List<BaseSubsystem> m_allSubsystems = new ArrayList<>();
 
-    private final SwerveSubsystem drivebase = SwerveSubsystem.getInstance();
-    private final ElevatorSubsystem elevator = ElevatorSubsystem.getInstance();
-    private final VisionSubsystem vision = VisionSubsystem.getInstance();
+   private final SwerveSubsystem drivebase = SwerveSubsystem.getInstance();
+   private final ElevatorSubsystem elevator = ElevatorSubsystem.getInstance();
+   // private final VisionSubsystem vision = VisionSubsystem.getInstance();
     private final IntakeSubsystem intake = IntakeSubsystem.getInstance();
 
     private Command fastDrive;
@@ -68,7 +72,7 @@ public class RobotContainer {
 
         preciseDrive = drivebase.driveFieldOriented(driveAngularVelocityPrecise);
 
-        drivebase.setDefaultCommand(fastDrive);
+        drivebase.setDefaultCommand(fastDrive); 
         
         configureSubsystems();
         configureBindings();
@@ -77,33 +81,45 @@ public class RobotContainer {
 
     public void configureBindings(){
 
-        m_driverController.b().whileTrue(preciseDrive);
+       m_driverController.leftBumper().whileTrue(preciseDrive);
 
         //For test purposes
-        Command upElevator = new StartEndCommand(() -> elevator.setElevatorVoltage(2), () -> elevator.setElevatorVoltage(0), elevator);
-       m_driverController.y().whileTrue(upElevator);
+     Command upElevator = new RunCommand(() -> elevator.goToLevel(elevator.getPosition() + 1), elevator);
+    m_driverAsisstant.povUp().whileTrue(upElevator);
 
-        Command downElevator = new StartEndCommand(() -> elevator.setElevatorVoltage(-2), () -> elevator.setElevatorVoltage(0), elevator);
-        m_driverController.a().whileTrue(downElevator);
+    Command downElevator = new RunCommand(() -> elevator.goToLevel(elevator.getPosition() + -1), elevator);
+    m_driverAsisstant.povDown().whileTrue(downElevator);
+
+        //Game Score Manipulation
+        m_driverController.rightTrigger().onTrue(new CoralIntake(intake).andThen(new CoralAdjust(intake)));
+        m_driverController.leftTrigger().onTrue(Commands.runOnce(() -> intake.setIntakeSpeed(intakeConstants.AlgeaIntakeSpeed)).andThen(Commands.runOnce(() -> IntakeState.setIsEmpty(true), intake)));
+
+        m_driverController.rightBumper().onTrue(Commands.runOnce(() -> intake.setIntakeSpeed(0), intake));
+
+        //Elevator Levels
+       m_driverController.povLeft().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL1));
+       m_driverController.povDown().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL2));
+       m_driverController.povRight().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL3));
+        m_driverController.povUp().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL4));
 
         //Allignment
-         m_driverController.povRight().onTrue(new DeferredCommand(
-                                () -> drivebase.driveToReefRight(), Set.of(drivebase)));
-         m_driverController.povLeft().onTrue(new DeferredCommand(
-                                () -> drivebase.driveToReefLeft(), Set.of(drivebase)));
+        // m_driverController.povRight().onTrue(new DeferredCommand(
+         //                       () -> drivebase.driveToReefRight(), Set.of(drivebase)));
+         //m_driverController.povLeft().onTrue(new DeferredCommand(
+        //                        () -> drivebase.driveToReefLeft(), Set.of(drivebase)));
 
        //Odometry Reset
-       m_driverController.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometryAtStart()));
+        m_driverController.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometryAtStart()));
 
-       m_driverController.x().onTrue(Commands.runOnce(() -> this.drivebase.zeroGyro(), this.drivebase));
+      // m_driverController.x().onTrue(Commands.runOnce(() -> this.drivebase.zeroGyro(), this.drivebase));
 
 
     }
 
     public void configureSubsystems(){
-        m_allSubsystems.add(drivebase);
-        m_allSubsystems.add(elevator);
-        m_allSubsystems.add(vision);
+       m_allSubsystems.add(drivebase);
+       m_allSubsystems.add(elevator);
+        //m_allSubsystems.add(vision);
         m_allSubsystems.add(intake);
     }
 

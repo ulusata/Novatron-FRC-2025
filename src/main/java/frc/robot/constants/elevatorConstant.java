@@ -27,9 +27,9 @@ public class elevatorConstant {
     public static final boolean inverted = false;
 
     //Levels
-    public static final double kElevatorL1 = 0;
-    public static final double kElevatorL2 = 0;
-    public static final double kElevatorL3 = 0;
+    public static final double kElevatorL1 = 14;
+    public static final double kElevatorL2 = 30;
+    public static final double kElevatorL3 = 54;
     public static final double kElevatorL4 = 0;
         
     public static final double kElevatorAlgeaLeveL1 = 0;
