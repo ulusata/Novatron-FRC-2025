@@ -102,6 +102,12 @@ public class RobotContainer {
        m_driverController.povRight().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL3));
         m_driverController.povUp().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL4));
 
+        //Intake
+        Command pivotUp = new StartEndCommand(() -> intake.setIntakePivotVoltage(3), () -> intake.setIntakePivotVoltage(0), intake);
+        Command pivotDown = new StartEndCommand(() -> intake.setIntakePivotVoltage(-5), () -> intake.setIntakePivotVoltage(0), intake);
+
+        m_driverController.a().whileTrue(pivotUp);
+
         //Allignment
         // m_driverController.povRight().onTrue(new DeferredCommand(
          //                       () -> drivebase.driveToReefRight(), Set.of(drivebase)));

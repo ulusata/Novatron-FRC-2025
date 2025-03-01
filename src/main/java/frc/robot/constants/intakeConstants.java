@@ -10,7 +10,7 @@ public class intakeConstants{
 
     public static final int pivotMotorId = 36;
     public static final MotorType pivotMotorType = MotorType.kBrushless;
-    public static final int pivotMotorCurrentLimit = 20;
+    public static final int pivotMotorCurrentLimit = 40;
 
     public static final int algaeShooterMotorId = 51;
     public static final MotorType algaeShooterMotorType = MotorType.kBrushless;
@@ -29,9 +29,9 @@ public class intakeConstants{
     public static final int proximitySensorId = 3;
     public static final int limitSwitcherId = 6;
 
-    public static final double p = 0;
+    public static final double p = 0.085;
     public static final double i = 0;
-    public static final double d = 0;
+    public static final double d = 0.05;
     public static final double iZone = 0;
 
 

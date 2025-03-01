@@ -30,14 +30,14 @@ public class IntakeSubsystem extends BaseSubsystem {
     private final RelativeEncoder m_pivotEncoder;
 
     private final DigitalInput m_coralSensor;
-    // private final DigitalInput m_limitSwitch;P
+    // private final DigitalInput m_limitSwitch;
 
-    private SparkClosedLoopController m_pivotPIDController;
+    // private SparkClosedLoopController m_pivotPIDController;
 
-    private TrapezoidProfile mProfile;
-    private TrapezoidProfile.State mCurState = new TrapezoidProfile.State();
-    private TrapezoidProfile.State mGoalState = new TrapezoidProfile.State();
-    private double prevUpdateTime = Timer.getFPGATimestamp();
+    // private TrapezoidProfile mProfile;
+    // private TrapezoidProfile.State mCurState = new TrapezoidProfile.State();
+    // private TrapezoidProfile.State mGoalState = new TrapezoidProfile.State();
+    // private double prevUpdateTime = Timer.getFPGATimestamp();
 
     private IntakeIOInputs intakeIO;
 
@@ -56,7 +56,7 @@ public class IntakeSubsystem extends BaseSubsystem {
         m_pivotMotor = new SparkMax(intakeConstants.pivotMotorId, intakeConstants.pivotMotorType);
         // m_algaeShooterMotor = new SparkMax(intakeConstants.algaeShooterMotorId, intakeConstants.algaeShooterMotorType);
         m_pivotEncoder = m_pivotMotor.getEncoder();
-        m_pivotPIDController = m_pivotMotor.getClosedLoopController();
+        // m_pivotPIDController = m_pivotMotor.getClosedLoopController();
 
         SparkMaxConfig configIntakeMotor = new SparkMaxConfig();
         configIntakeMotor.idleMode(intakeConstants.idleMode);
@@ -69,13 +69,13 @@ public class IntakeSubsystem extends BaseSubsystem {
         configPivotMotor.idleMode(intakeConstants.idleMode);
         configPivotMotor.smartCurrentLimit(intakeConstants.pivotMotorCurrentLimit);
 
-        configPivotMotor.closedLoop.pid(
-                intakeConstants.p,
-                intakeConstants.i,
-                intakeConstants.d)
-                .iZone(intakeConstants.iZone)
-                .minOutput(intakeConstants.pivotMotorMinOutput)
-                .maxOutput(intakeConstants.pivotMotorMaxOutput);
+        // configPivotMotor.closedLoop.pid(
+        //         intakeConstants.p,
+        //         intakeConstants.i,
+        //         intakeConstants.d)
+        //         .iZone(intakeConstants.iZone)
+        //         .minOutput(intakeConstants.pivotMotorMinOutput)
+        //         .maxOutput(intakeConstants.pivotMotorMaxOutput);
 
         m_pivotMotor.configure(configPivotMotor, ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters);
@@ -121,22 +121,22 @@ public class IntakeSubsystem extends BaseSubsystem {
 
     @Override
     public void writePeriodicOutputs() {
-        double curTime = Timer.getFPGATimestamp();
-        double dt = curTime - prevUpdateTime;
-        prevUpdateTime = curTime;
-        if (intakeIO.is_intake_pos_control) {
+        // double curTime = Timer.getFPGATimestamp();
+        // double dt = curTime - prevUpdateTime;
+        // prevUpdateTime = curTime;
+        // if (intakeIO.is_intake_pos_control) {
 
-            mGoalState.position = intakeIO.intake_pivot_angle;
-            prevUpdateTime = curTime;
-            mCurState = mProfile.calculate(dt, mCurState, mGoalState);
+        //     mGoalState.position = intakeIO.intake_pivot_angle;
+        //     prevUpdateTime = curTime;
+        //     mCurState = mProfile.calculate(dt, mCurState, mGoalState);
 
-            m_pivotPIDController.setReference(
-                    mCurState.position,
-                    SparkBase.ControlType.kPosition,
-                    ClosedLoopSlot.kSlot0);
-        } else {
+        //     m_pivotPIDController.setReference(
+        //             mCurState.position,
+        //             SparkBase.ControlType.kPosition,
+        //             ClosedLoopSlot.kSlot0);
+        // } else {
             m_pivotMotor.setVoltage(intakeIO.intake_pivot_voltage);
-        }
+        //}
         m_intakeMotor.set(intakeIO.intake_speed);
     }
 
@@ -163,10 +163,10 @@ public class IntakeSubsystem extends BaseSubsystem {
         intakeIO.intake_speed = speed;
     }
 
-    // public void setIntakePivotVoltage(double voltage) {
-    //     intakeIO.is_intake_pos_control = false;
-    //     intakeIO.intake_pivot_voltage = voltage;
-    // }
+    public void setIntakePivotVoltage(double voltage) {
+        intakeIO.is_intake_pos_control = false;
+         intakeIO.intake_pivot_voltage = voltage;
+     }
 
     public void stopIntake() {
         intakeIO.intake_speed = 0.0;

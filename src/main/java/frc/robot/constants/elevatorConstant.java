@@ -17,7 +17,7 @@ public class elevatorConstant {
     //PID values
     public static final double p = 0.085;
     public static final double i = 0;
-    public static final double d = 0;
+    public static final double d = 0.05;
     public static final double iZone = 5;
 
     //Trapezoid Profile Constants
