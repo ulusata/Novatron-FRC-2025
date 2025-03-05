@@ -1,12 +1,12 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import org.json.simple.parser.ParseException;
+
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,12 +14,19 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.abstracts.BaseSubsystem;
 import frc.robot.RobotState.IntakeState;
+import frc.robot.commands.Autos.test;
 import frc.robot.commands.Elevator.GoToLevelCommand;
 import frc.robot.commands.Intake.CoralAdjust;
 import frc.robot.commands.Intake.CoralIntake;
+import frc.robot.commands.Intake.DropCoral;
+import frc.robot.commands.Intake.SetAlgae;
+import frc.robot.commands.Intake.SetBase;
+import frc.robot.commands.Intake.SetLevels;
+import frc.robot.commands.Intake.SetZero;
 import frc.robot.constants.elevatorConstant;
 import frc.robot.constants.intakeConstants;
 import frc.robot.subsystems.Elavator.ElevatorSubsystem;
@@ -55,8 +62,8 @@ public class RobotContainer {
                 () -> m_driverController.getLeftX() * -1)
                 .withControllerRotationAxis(m_driverController::getRightX)
                 .deadband(0.1)
-                .scaleTranslation(0.4)
-                .scaleRotation(-1)
+                .scaleTranslation(0.2)
+                .scaleRotation(-0.8)
                 .allianceRelativeControl(false);
 
         fastDrive = drivebase.driveFieldOriented(driveAngularVelocity);
@@ -75,38 +82,85 @@ public class RobotContainer {
         drivebase.setDefaultCommand(fastDrive); 
         
         configureSubsystems();
+        configureNamedCommands();
         configureBindings();
 
     }
 
     public void configureBindings(){
 
+        //Precise Drive
        m_driverController.leftBumper().whileTrue(preciseDrive);
 
-        //For test purposes
-     Command upElevator = new RunCommand(() -> elevator.goToLevel(elevator.getPosition() + 1), elevator);
-    m_driverAsisstant.povUp().whileTrue(upElevator);
-
-    Command downElevator = new RunCommand(() -> elevator.goToLevel(elevator.getPosition() + -1), elevator);
-    m_driverAsisstant.povDown().whileTrue(downElevator);
-
         //Game Score Manipulation
-        m_driverController.rightTrigger().onTrue(new CoralIntake(intake).andThen(new CoralAdjust(intake)));
-        m_driverController.leftTrigger().onTrue(Commands.runOnce(() -> intake.setIntakeSpeed(intakeConstants.AlgeaIntakeSpeed)).andThen(Commands.runOnce(() -> IntakeState.setIsEmpty(true), intake)));
+        m_driverController.leftTrigger().onTrue(
+                        new CoralIntake(intake)
+                        .andThen(new CoralAdjust(intake)));
 
-        m_driverController.rightBumper().onTrue(Commands.runOnce(() -> intake.setIntakeSpeed(0), intake));
+        // m_driverController.rightTrigger().onTrue(
+        //         Commands.runOnce(() -> intake.setIntakeSpeed(intakeConstants.CoralIntakeSpeed), intake)
+        //         .andThen(Commands.runOnce(() -> IntakeState.setIsEmpty(true), intake))
+        //         .andThen(new WaitCommand(2))
+        //         .andThen(Commands.runOnce(() -> intake.setIntakeSpeed(0), intake)));
+        
+        m_driverController.rightTrigger().onTrue(new DropCoral(intake));
+
+       // m_driverController.rightBumper().onTrue(Commands.runOnce(() -> intake.setIntakeSpeed(0), intake));
+
+        //Algae Intake
+       // m_driverController.y().onTrue(Commands.runOnce(() -> intake.setIntakeSpeed(intakeConstants.AlgeaIntakeSpeed), intake));
+
 
         //Elevator Levels
-       m_driverController.povLeft().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL1));
-       m_driverController.povDown().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL2));
-       m_driverController.povRight().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL3));
-        m_driverController.povUp().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL4));
+       m_driverAsisstant.povLeft().onTrue(
+                new SetZero(intake)
+                .andThen(new GoToLevelCommand(elevator, elevatorConstant.kBase))
+                .andThen(new SetLevels(intake)));
 
-        //Intake
-        Command pivotUp = new StartEndCommand(() -> intake.setIntakePivotVoltage(3), () -> intake.setIntakePivotVoltage(0), intake);
-        Command pivotDown = new StartEndCommand(() -> intake.setIntakePivotVoltage(-5), () -> intake.setIntakePivotVoltage(0), intake);
+       m_driverAsisstant.povDown().onTrue(
+                new SetZero(intake)
+                .andThen(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL2))
+                .andThen(new SetBase(intake)));
 
-        m_driverController.a().whileTrue(pivotUp);
+       m_driverAsisstant.povRight().onTrue(
+                new SetZero(intake)
+                .andThen(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL3))
+                .andThen(new SetBase(intake)));
+
+        m_driverAsisstant.povUp().onTrue(
+                new SetZero(intake)
+                .andThen(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL4))
+                .andThen(new SetBase(intake)));
+
+        m_driverAsisstant.b().onTrue(new SetAlgae(intake));
+
+        m_driverAsisstant.x().onTrue(new SetBase(intake));
+
+        m_driverAsisstant.a().onTrue(
+                new SetZero(intake)
+                .andThen(new GoToLevelCommand(elevator, elevatorConstant.kElevatorAlgeaLeveL1))
+                .andThen(new SetAlgae(intake)));
+
+        m_driverAsisstant.y().onTrue(
+                new SetZero(intake)
+                .andThen(new GoToLevelCommand(elevator, elevatorConstant.kElevatorAlgeaLeveL2))
+                .andThen(new SetAlgae(intake)));
+
+
+        //Manual elevator
+        Command upElevator = new RunCommand(() -> elevator.goToLevel(elevator.getPosition() + 1), elevator);
+        m_driverAsisstant.rightTrigger().whileTrue(upElevator);
+
+        Command downElevator = new RunCommand(() -> elevator.goToLevel(elevator.getPosition() + -1), elevator);
+        m_driverAsisstant.leftTrigger().whileTrue(downElevator);
+
+        //For test purposes
+        //Command pivotUp = new RunCommand(() -> intake.setPivotBaseLevel(), intake);
+        //Command pivotDown = new RunCommand(() -> intake.setDropLevel() ,intake);
+
+        //m_driverController.a().onTrue(pivotUp);
+        //m_driverController.b().onTrue(pivotDown);
+
 
         //Allignment
         // m_driverController.povRight().onTrue(new DeferredCommand(
@@ -117,7 +171,7 @@ public class RobotContainer {
        //Odometry Reset
         m_driverController.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometryAtStart()));
 
-      // m_driverController.x().onTrue(Commands.runOnce(() -> this.drivebase.zeroGyro(), this.drivebase));
+      m_driverController.a().onTrue(Commands.runOnce(() -> this.drivebase.zeroGyro(), this.drivebase));
 
 
     }
@@ -129,22 +183,43 @@ public class RobotContainer {
         m_allSubsystems.add(intake);
     }
 
+    public void configureNamedCommands(){
+        NamedCommands.registerCommand("GoToLevel1", 
+                new SetZero(intake)
+                .andThen(new GoToLevelCommand(elevator, elevatorConstant.kBase))
+                .andThen(new SetLevels(intake)));
+        NamedCommands.registerCommand("GoToLevel2", 
+                new SetZero(intake)
+                .andThen(new GoToLevelCommand(elevator, elevatorConstant.kElevatorL2))
+                .andThen(new SetBase(intake)));
+        NamedCommands.registerCommand("GoToLevel3", 
+                new SetZero(intake)
+                .andThen(new GoToLevelCommand(elevator, elevatorConstant.kElevatorL3))
+                .andThen(new SetBase(intake)));
+        NamedCommands.registerCommand("GoToLevel4", 
+                new SetZero(intake)
+                .andThen(new GoToLevelCommand(elevator, elevatorConstant.kElevatorL4))
+                .andThen(new SetBase(intake)));
 
-    public Command getAutonomousCommand() {
-        // System.out.println("Auto Command");
-        // PathPlannerPath path;
-        // try {
-        //     path = PathPlannerPath.fromPathFile("straight5m");
-        //     Pose2d startingPose = path.getStartingHolonomicPose().get();
-        //     System.out.println(startingPose);
-        //     drivebase.zeroGyroWithAlliance();
-        //     drivebase.resetOdometry(startingPose);
-        //     return AutoBuilder.followPath(path);
-        // } catch (FileVersionException | IOException | ParseException e) {
-        //     e.printStackTrace();
-        // }
-        return null;
+        NamedCommands.registerCommand("Intake", 
+                new CoralIntake(intake)
+                .andThen(new CoralAdjust(intake)));
 
+        NamedCommands.registerCommand("Drop", 
+                Commands.runOnce(() -> intake.setIntakeSpeed(intakeConstants.CoralIntakeSpeed), intake)
+                .andThen(Commands.runOnce(() -> IntakeState.setIsEmpty(true), intake))
+                .andThen(new WaitCommand(2))
+                .andThen(Commands.runOnce(() -> intake.setIntakeSpeed(0), intake)));
+    }
+
+    public Command getAutonomousCommand()  {
+        try {
+                return new test(drivebase, elevator, intake);
+
+        } catch (ParseException | edu.wpi.first.util.struct.parser.ParseException e) {
+                e.printStackTrace();
+                return null;
+        }
     }
 
     public List<BaseSubsystem> getSubsystems() {

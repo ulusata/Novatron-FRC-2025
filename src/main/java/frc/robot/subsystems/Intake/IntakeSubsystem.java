@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.abstracts.BaseSubsystem;
 import frc.lib.enums.TelemetryVerbosityLevel;
+import frc.robot.constants.elevatorConstant;
 import frc.robot.constants.intakeConstants;
 import frc.robot.RobotState.IntakeState;
 
@@ -25,19 +26,18 @@ public class IntakeSubsystem extends BaseSubsystem {
 
     private final SparkMax m_pivotMotor;
     private final SparkMax m_intakeMotor;
-    // private final SparkMax m_algaeShooterMotor;
 
     private final RelativeEncoder m_pivotEncoder;
 
     private final DigitalInput m_coralSensor;
-    // private final DigitalInput m_limitSwitch;
+    private final DigitalInput m_limitSwitch;
 
-    // private SparkClosedLoopController m_pivotPIDController;
+    private SparkClosedLoopController m_pivotPIDController;
 
-    // private TrapezoidProfile mProfile;
-    // private TrapezoidProfile.State mCurState = new TrapezoidProfile.State();
-    // private TrapezoidProfile.State mGoalState = new TrapezoidProfile.State();
-    // private double prevUpdateTime = Timer.getFPGATimestamp();
+    private TrapezoidProfile mProfile;
+    private TrapezoidProfile.State mCurState = new TrapezoidProfile.State();
+    private TrapezoidProfile.State mGoalState = new TrapezoidProfile.State();
+    private double prevUpdateTime = Timer.getFPGATimestamp();
 
     private IntakeIOInputs intakeIO;
 
@@ -54,9 +54,8 @@ public class IntakeSubsystem extends BaseSubsystem {
 
         m_intakeMotor = new SparkMax(intakeConstants.intakeMotorId, intakeConstants.intakeMotorType);
         m_pivotMotor = new SparkMax(intakeConstants.pivotMotorId, intakeConstants.pivotMotorType);
-        // m_algaeShooterMotor = new SparkMax(intakeConstants.algaeShooterMotorId, intakeConstants.algaeShooterMotorType);
         m_pivotEncoder = m_pivotMotor.getEncoder();
-        // m_pivotPIDController = m_pivotMotor.getClosedLoopController();
+        m_pivotPIDController = m_pivotMotor.getClosedLoopController();
 
         SparkMaxConfig configIntakeMotor = new SparkMaxConfig();
         configIntakeMotor.idleMode(intakeConstants.idleMode);
@@ -69,28 +68,27 @@ public class IntakeSubsystem extends BaseSubsystem {
         configPivotMotor.idleMode(intakeConstants.idleMode);
         configPivotMotor.smartCurrentLimit(intakeConstants.pivotMotorCurrentLimit);
 
-        // configPivotMotor.closedLoop.pid(
-        //         intakeConstants.p,
-        //         intakeConstants.i,
-        //         intakeConstants.d)
-        //         .iZone(intakeConstants.iZone)
-        //         .minOutput(intakeConstants.pivotMotorMinOutput)
-        //         .maxOutput(intakeConstants.pivotMotorMaxOutput);
+        configPivotMotor.closedLoop.pid(
+                intakeConstants.p,
+                intakeConstants.i,
+                intakeConstants.d)
+                .iZone(intakeConstants.iZone)
+                .minOutput(intakeConstants.pivotMotorMinOutput)
+                .maxOutput(intakeConstants.pivotMotorMaxOutput);
 
         m_pivotMotor.configure(configPivotMotor, ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters);
 
-        //SparkMaxConfig configAlgaeShooter = new SparkMaxConfig();
-       // configAlgaeShooter.idleMode(intakeConstants.idleMode);
-        //configAlgaeShooter.smartCurrentLimit(intakeConstants.algaeShooterMotorCurrentLimit);
-
-        // m_algaeShooterMotor.configure(configAlgaeShooter, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
         m_coralSensor = new DigitalInput(intakeConstants.proximitySensorId);
 
-        // m_limitSwitch = new DigitalInput(intakeConstants.limitSwitcherId);
+        m_limitSwitch = new DigitalInput(intakeConstants.limitSwitcherId);
 
         intakeIO = new IntakeIOInputs();
+
+        mProfile = new TrapezoidProfile(
+                new TrapezoidProfile.Constraints(elevatorConstant.maxVelocity, elevatorConstant.maxAcceleration));
+
+
     }
 
     private static class IntakeIOInputs {
@@ -107,36 +105,33 @@ public class IntakeSubsystem extends BaseSubsystem {
 
     @Override
     public void periodic(){
-         // if (!m_limitSwitch.get()) {
-        //     m_pivotEncoder.setPosition(0);
-        // }
-
-        if (IntakeState.isEmpty == false && !getCoralSensor()) {
-            m_intakeMotor.set(0.2);
+         if (!m_limitSwitch.get()) {
+            m_pivotEncoder.setPosition(0);
         }
 
-       SmartDashboard.putBoolean("coral", getCoralSensor());
-       SmartDashboard.putNumber("intake angle", getPivotAngle());
+        if (IntakeState.isEmpty == false && !getCoralSensor()) {
+            m_intakeMotor.set(0.3);
+        }
     }
 
     @Override
     public void writePeriodicOutputs() {
-        // double curTime = Timer.getFPGATimestamp();
-        // double dt = curTime - prevUpdateTime;
-        // prevUpdateTime = curTime;
-        // if (intakeIO.is_intake_pos_control) {
+        double curTime = Timer.getFPGATimestamp();
+        double dt = curTime - prevUpdateTime;
+        prevUpdateTime = curTime;
+        if (intakeIO.is_intake_pos_control) {
 
-        //     mGoalState.position = intakeIO.intake_pivot_angle;
-        //     prevUpdateTime = curTime;
-        //     mCurState = mProfile.calculate(dt, mCurState, mGoalState);
+            mGoalState.position = intakeIO.intake_pivot_angle;
+            prevUpdateTime = curTime;
+            mCurState = mProfile.calculate(dt, mCurState, mGoalState);
 
-        //     m_pivotPIDController.setReference(
-        //             mCurState.position,
-        //             SparkBase.ControlType.kPosition,
-        //             ClosedLoopSlot.kSlot0);
-        // } else {
+            m_pivotPIDController.setReference(
+                    mCurState.position,
+                    SparkBase.ControlType.kPosition,
+                    ClosedLoopSlot.kSlot0);
+        } else {
             m_pivotMotor.setVoltage(intakeIO.intake_pivot_voltage);
-        //}
+        }
         m_intakeMotor.set(intakeIO.intake_speed);
     }
 
@@ -156,7 +151,9 @@ public class IntakeSubsystem extends BaseSubsystem {
 
     @Override
     protected void outputHighTelemetry() {
-
+        SmartDashboard.putBoolean("coral", getCoralSensor());
+        SmartDashboard.putNumber("intake angle", getPivotAngle());
+       SmartDashboard.putBoolean("intake switch", m_limitSwitch.get()); 
     }
 
     public void setIntakeSpeed(double speed) {
@@ -184,36 +181,51 @@ public class IntakeSubsystem extends BaseSubsystem {
         return m_coralSensor.get();
     }
 
-    // public void setPivotAlgeaLevel1Angle() {
-    //     intakeIO.is_intake_pos_control = true;
-    //     intakeIO.intake_pivot_angle = intakeConstants.kAlgeaLevel1Angle;
-    // }
+    public void setPositionUp(){
+        intakeIO.is_intake_pos_control = true;
+        intakeIO.intake_pivot_angle += 0.01;
+    }
 
-    //public void setPivotBaseAngle() {
-    //     intakeIO.is_intake_pos_control = true;
-    //     intakeIO.intake_pivot_angle = intakeConstants.kBaseAngle;
-    // }
+    public void setPositionDown(){
+        intakeIO.is_intake_pos_control = true;
+        intakeIO.intake_pivot_angle -= 0.01;
+    }
 
-    // public void setPivotZeroAngle() {
-    //     intakeIO.is_intake_pos_control = true;
-    //     intakeIO.intake_pivot_angle = 0;
-    // }
+    public void setPivotBaseLevel() {
+        intakeIO.is_intake_pos_control = true;
+        intakeIO.intake_pivot_angle = intakeConstants.kBaseAngle;
+    }
 
-    // public boolean isAtZoroAngle() {
-    //     return Math.abs(m_pivotEncoder.getPosition() - 0) < intakeConstants.kTolerancePivot;
-    // }
+    public void setDropLevel() {
+        intakeIO.is_intake_pos_control = true;
+        intakeIO.intake_pivot_angle = intakeConstants.kCoralAngle;
+    }
 
-    // public boolean isAtBaseAngle() {
-    //     return Math.abs(m_pivotEncoder.getPosition() - intakeConstants.kBaseAngle) < intakeConstants.kTolerancePivot;
-    // }
+    public void setAlgaeLevel()
+    {
+        intakeIO.is_intake_pos_control = true;
+        intakeIO.intake_pivot_angle = intakeConstants.algaeLevel;
+    }
+    public void setL4Level() {
+        intakeIO.is_intake_pos_control = true;
+        intakeIO.intake_pivot_angle = intakeConstants.kL4Angle;
+    }
 
-    // public boolean isAtAlgeaLevel1Angle() {
-    //     return Math.abs(
-    //             m_pivotEncoder.getPosition() - intakeConstants.kAlgeaLevel1Angle) < intakeConstants.kTolerancePivot;
-    // }
+    public boolean isAtDropAngle() {
+        return Math.abs(m_pivotEncoder.getPosition() - 0) < intakeConstants.kTolerancePivot;
+    }
 
-    // public boolean ifAngleLessThanBaseAngle() {
-    //     return m_pivotEncoder.getPosition() < intakeConstants.kBaseAngle + intakeConstants.kTolerancePivot;
-    // }
+    public boolean isAtBaseAngle() {
+        return Math.abs(m_pivotEncoder.getPosition() - intakeConstants.kBaseAngle) < intakeConstants.kTolerancePivot;
+    }
+
+    public boolean isAtL4Level() {
+        return Math.abs(
+                m_pivotEncoder.getPosition() - intakeConstants.kL4Angle) < intakeConstants.kTolerancePivot;
+    }
+
+    public boolean ifAngleLessThanBaseAngle() {
+        return m_pivotEncoder.getPosition() < intakeConstants.kBaseAngle + intakeConstants.kTolerancePivot;
+    }
 
 }

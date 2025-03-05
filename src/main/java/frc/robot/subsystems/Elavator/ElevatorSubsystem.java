@@ -34,7 +34,7 @@ public class ElevatorSubsystem extends BaseSubsystem{
     private RelativeEncoder m_leftNeoMotorEncoder;
 
     private SparkClosedLoopController mLeftPIDController;
-    // private DigitalInput limitSwitch;
+    private DigitalInput limitSwitch;
 
     private TrapezoidProfile mProfile;
     private TrapezoidProfile.State mCurState = new TrapezoidProfile.State();
@@ -81,7 +81,7 @@ public class ElevatorSubsystem extends BaseSubsystem{
         mProfile = new TrapezoidProfile(
                 new TrapezoidProfile.Constraints(65, 200));
 
-        // limitSwitch = new DigitalInput(2);
+        limitSwitch = new DigitalInput(elevatorConstant.limitSwitcherId);
 
     }
 
@@ -93,9 +93,9 @@ public class ElevatorSubsystem extends BaseSubsystem{
 
     @Override
     public void periodic(){
-        // if (!limitSwitch.get()) {
-        //     m_leftNeoMotorEncoder.setPosition(0);
-        // }
+        if (!limitSwitch.get()) {
+            m_leftNeoMotorEncoder.setPosition(0);
+        }
     }
 
     @Override
@@ -144,7 +144,7 @@ public class ElevatorSubsystem extends BaseSubsystem{
         SmartDashboard.putNumber("elevator Position", m_leftNeoMotorEncoder.getPosition());
         SmartDashboard.putNumber("Elevator Target Position", elevatorIO.elevator_target);
         SmartDashboard.putNumber("Elevator Voltage", m_leftNeoMotor.getBusVoltage());
-        // SmartDashboard.putBoolean("Limit Switch", limitSwitch.get());
+        SmartDashboard.putBoolean("elevator Limit Switch", limitSwitch.get());
     }
 
     public void setElevatorVoltage(double voltage) {
