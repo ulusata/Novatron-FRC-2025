@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.abstracts.BaseSubsystem;
 import frc.robot.RobotState.IntakeState;
+import frc.robot.commands.Autos.L2Cycle;
 import frc.robot.commands.Autos.test;
 import frc.robot.commands.Elevator.GoToLevelCommand;
 import frc.robot.commands.Intake.CoralAdjust;
@@ -32,7 +33,7 @@ import frc.robot.constants.intakeConstants;
 import frc.robot.subsystems.Elavator.ElevatorSubsystem;
 import frc.robot.subsystems.Intake.IntakeSubsystem;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
-import frc.robot.subsystems.Vision.VisionSubsystem;
+//import frc.robot.subsystems.Vision.VisionSubsystem;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
@@ -62,7 +63,7 @@ public class RobotContainer {
                 () -> m_driverController.getLeftX() * -1)
                 .withControllerRotationAxis(m_driverController::getRightX)
                 .deadband(0.1)
-                .scaleTranslation(0.2)
+                .scaleTranslation(0.4)
                 .scaleRotation(-0.8)
                 .allianceRelativeControl(false);
 
@@ -103,7 +104,7 @@ public class RobotContainer {
         //         .andThen(new WaitCommand(2))
         //         .andThen(Commands.runOnce(() -> intake.setIntakeSpeed(0), intake)));
         
-        m_driverController.rightTrigger().onTrue(new DropCoral(intake));
+        m_driverController.rightTrigger().onTrue(new DropCoral(intake, elevator));
 
        // m_driverController.rightBumper().onTrue(Commands.runOnce(() -> intake.setIntakeSpeed(0), intake));
 
@@ -112,39 +113,17 @@ public class RobotContainer {
 
 
         //Elevator Levels
-       m_driverAsisstant.povLeft().onTrue(
-                new SetZero(intake)
-                .andThen(new GoToLevelCommand(elevator, elevatorConstant.kBase))
-                .andThen(new SetLevels(intake)));
+        m_driverAsisstant.povLeft().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kBase));
 
-       m_driverAsisstant.povDown().onTrue(
-                new SetZero(intake)
-                .andThen(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL2))
-                .andThen(new SetBase(intake)));
+        m_driverAsisstant.povDown().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL2));
 
-       m_driverAsisstant.povRight().onTrue(
-                new SetZero(intake)
-                .andThen(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL3))
-                .andThen(new SetBase(intake)));
+        m_driverAsisstant.povRight().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL3));
 
-        m_driverAsisstant.povUp().onTrue(
-                new SetZero(intake)
-                .andThen(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL4))
-                .andThen(new SetBase(intake)));
+        m_driverAsisstant.povUp().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL4));
 
-        m_driverAsisstant.b().onTrue(new SetAlgae(intake));
+        m_driverAsisstant.a().onTrue(new GoToLevelCommand(elevator, elevatorConstant.kElevatorAlgeaLeveL1));
 
-        m_driverAsisstant.x().onTrue(new SetBase(intake));
-
-        m_driverAsisstant.a().onTrue(
-                new SetZero(intake)
-                .andThen(new GoToLevelCommand(elevator, elevatorConstant.kElevatorAlgeaLeveL1))
-                .andThen(new SetAlgae(intake)));
-
-        m_driverAsisstant.y().onTrue(
-                new SetZero(intake)
-                .andThen(new GoToLevelCommand(elevator, elevatorConstant.kElevatorAlgeaLeveL2))
-                .andThen(new SetAlgae(intake)));
+        m_driverAsisstant.y().onTrue(new GoToLevelCommand(elevator, elevatorConstant.kElevatorAlgeaLeveL2));
 
 
         //Manual elevator
@@ -163,10 +142,10 @@ public class RobotContainer {
 
 
         //Allignment
-        // m_driverController.povRight().onTrue(new DeferredCommand(
-         //                       () -> drivebase.driveToReefRight(), Set.of(drivebase)));
-         //m_driverController.povLeft().onTrue(new DeferredCommand(
-        //                        () -> drivebase.driveToReefLeft(), Set.of(drivebase)));
+        m_driverController.povRight().onTrue(new DeferredCommand(
+                               () -> drivebase.driveToReefRight(), Set.of(drivebase)));
+         m_driverController.povLeft().onTrue(new DeferredCommand(
+                               () -> drivebase.driveToReefLeft(), Set.of(drivebase)));
 
        //Odometry Reset
         m_driverController.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometryAtStart()));
@@ -214,7 +193,7 @@ public class RobotContainer {
 
     public Command getAutonomousCommand()  {
         try {
-                return new test(drivebase, elevator, intake);
+                return new L2Cycle(drivebase, elevator, intake);
 
         } catch (ParseException | edu.wpi.first.util.struct.parser.ParseException e) {
                 e.printStackTrace();

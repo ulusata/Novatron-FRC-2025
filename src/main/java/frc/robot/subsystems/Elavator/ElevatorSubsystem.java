@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.abstracts.BaseSubsystem;
 import frc.lib.enums.TelemetryVerbosityLevel;
 import frc.robot.constants.elevatorConstant;
+import frc.robot.constants.intakeConstants;
 
 
 public class ElevatorSubsystem extends BaseSubsystem{
@@ -93,8 +94,15 @@ public class ElevatorSubsystem extends BaseSubsystem{
 
     @Override
     public void periodic(){
-        if (!limitSwitch.get()) {
-            m_leftNeoMotorEncoder.setPosition(0);
+        // if (!limitSwitch.get()) {
+        //     m_leftNeoMotorEncoder.setPosition(0);
+        // }
+
+        if(getPosition() + elevatorConstant.kToleranceElevator >= elevatorConstant.kElevatorL4){
+            intakeConstants.setSpeed(intakeConstants.CoraL4IntakeSpeed);
+        }
+        else{
+            intakeConstants.setSpeed(intakeConstants.CoralIntakeSpeed);
         }
     }
 

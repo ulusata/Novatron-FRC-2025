@@ -49,14 +49,9 @@ public class L2Cycle extends SequentialCommandGroup {
       AutoBuilder.followPath(pathGroup.get(0)),
       new SequentialCommandGroup(
         new GoToLevelCommand(elevator, elevatorConstant.kElevatorL2),
-        new SetZero(intake),
-        new DropCoral(intake),
+        new DropCoral(intake, elevator),
         new WaitCommand(0.2),
-        new SetLevels(intake),
-        new GoToLevelCommand(elevator, elevatorConstant.kElevatorL1)),
-        AutoBuilder.followPath(pathGroup.get(1)),
-        new CoralIntake(intake),
-        new CoralAdjust(intake)
+        new GoToLevelCommand(elevator, elevatorConstant.kElevatorL1))
     );
       
   }

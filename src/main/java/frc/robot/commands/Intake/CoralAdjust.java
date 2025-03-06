@@ -14,7 +14,7 @@ public class CoralAdjust extends Command {
 
   @Override
   public void initialize() {
-    intake.setIntakeSpeed(-0.1);
+    intake.setIntakeSpeed(-0.3);
   }
 
   @Override

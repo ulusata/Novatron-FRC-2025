@@ -23,6 +23,7 @@ public class intakeConstants{
 
 
     public static final int proximitySensorId = 3;
+    public static final int proximitySensor2 = 9; 
     public static final int limitSwitcherId = 6;
 
     public static final double p = 0.7;
@@ -33,6 +34,13 @@ public class intakeConstants{
 
     //Speeds
     public static final double CoralIntakeSpeed = -0.3;
+    public static final double CoraL4IntakeSpeed = -0.7;
+
+    public static double lastSpeed = -0.3;
+
+    public static void setSpeed(double speed){
+        lastSpeed = speed;
+    }
         
     public static final double AlgeaIntakeSpeed = 0.3;
     

@@ -15,7 +15,7 @@ public class elevatorConstant {
     public static final IdleMode idleMode = IdleMode.kBrake;
 
     //PID values
-    public static final double p = 0.085;
+    public static final double p = 0.090;
     public static final double i = 0;
     public static final double d = 0.05;
     public static final double iZone = 5;
@@ -28,9 +28,9 @@ public class elevatorConstant {
 
     //Levels
     public static final double kElevatorL1 = 0;
-    public static final double kElevatorL2 = 14;
-    public static final double kElevatorL3 = 30;
-    public static final double kElevatorL4 = 58;
+    public static final double kElevatorL2 = 13.3; //13.3
+    public static final double kElevatorL3 = 30; 
+    public static final double kElevatorL4 = 59;//57
     public static final double kBase = 0;
         
     public static final double kElevatorAlgeaLeveL1 = 23;

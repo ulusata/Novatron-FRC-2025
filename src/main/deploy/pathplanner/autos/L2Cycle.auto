@@ -15,6 +15,18 @@
           "data": {
             "pathName": "GoToSourceFromH"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Source2C"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "GoToSourceFromC"
+          }
         }
       ]
     }

@@ -28,12 +28,14 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 import frc.lib.abstracts.BaseSubsystem;
 import frc.lib.utils.FieldUtils;
-import frc.robot.subsystems.Vision.VisionSubsystem;
+//import frc.robot.subsystems.Vision.VisionSubsystem;
 
 import java.io.File;
 import java.util.List;
@@ -49,7 +51,9 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends BaseSubsystem {
   private static SwerveSubsystem mInstance;
 
-  private VisionSubsystem vision;
+  //private VisionSubsystem vision;
+
+  private Field2d field = new Field2d();
 
   public static SwerveSubsystem getInstance() {
     if (mInstance == null) {
@@ -62,10 +66,10 @@ public class SwerveSubsystem extends BaseSubsystem {
   private final SwerveDrive swerveDrive;
 
   //Initial positions for both side
-    private final Pose2d blueInitalPosition = new Pose2d(new Translation2d(Meter.of(3), Meter.of(5)),
-      Rotation2d.fromDegrees(0));
-    private static final Pose2d redInitalPosition = new Pose2d(new Translation2d(Meter.of(18), Meter.of(2)),
+    private final Pose2d blueInitalPosition = new Pose2d(new Translation2d(Meter.of(7.380), Meter.of(5.210)),
       Rotation2d.fromDegrees(180));
+    private static final Pose2d redInitalPosition = new Pose2d(new Translation2d(Meter.of(18), Meter.of(2)),
+      Rotation2d.fromDegrees(0));
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -88,14 +92,43 @@ public class SwerveSubsystem extends BaseSubsystem {
 
     setupPathPlanner();
 
-    vision = VisionSubsystem.getInstance();
-    vision.setPoseSupplier(this::getPose);
+    //vision = VisionSubsystem.getInstance();
+    //vision.setPoseSupplier(this::getPose);
+  }
+
+  public Pose2d getReefPoseLeft() {
+    Pose2d nearestTagPose1 = this.getPose().nearest(FieldUtils.getReefAprilTags());
+    double xOffset1 = (0.71 / 2) + 0.11;
+    double yOffset1 = 0;
+    yOffset1 += 0.165;
+
+    Pose2d targetPose1 = nearestTagPose1.plus(new Transform2d(xOffset1, yOffset1, Rotation2d.k180deg));
+    return targetPose1;
+  }
+
+  public Pose2d getReefPoseRight() {
+    Pose2d nearestTagPose2 = this.getPose().nearest(FieldUtils.getReefAprilTags());
+    double xOffset2 = (0.71 / 2) + 0.11;
+    double yOffset2 = 0;
+    yOffset2 -= 0.165;
+
+    Pose2d targetPose2 = nearestTagPose2.plus(new Transform2d(xOffset2, yOffset2, Rotation2d.k180deg));
+    return targetPose2;
   }
 
   @Override
   public void periodic() {
     // addVisionReading();
     swerveDrive.updateOdometry();
+    //SmartDashboard.putString("Left Reef", this.getReefPoseLeft().toString());
+    //SmartDashboard.putString("Right Reef", this.getReefPoseRight().toString());
+
+    // SmartDashboard.putData("Field", field);
+
+    // field.setRobotPose(swerveDrive.getPose());
+
+    // SmartDashboard.putString("Left Reef", getReefPoseLeft().toString());
+
   }
 
   @Override
@@ -122,8 +155,8 @@ public class SwerveSubsystem extends BaseSubsystem {
             }
           },
           new PPHolonomicDriveController(
-              new PIDConstants(10.0, 0.001, 0.1), // Translation PID constants
-              new PIDConstants(4.8, 0.0, 0.0) // Rotation PID constants
+              new PIDConstants(8.0, 0.001, 0.1), // Translation PID constants
+              new PIDConstants(4.2, 0.0, 0.0) // Rotation PID constants
               ),
           config,
           () -> {
@@ -367,18 +400,18 @@ public class SwerveSubsystem extends BaseSubsystem {
         new Pose2d(4, 7, Rotation2d.fromDegrees(0)), Timer.getFPGATimestamp());
   }
 
-  public void addVisionReading(){
-    var visionEst = vision.getEstimatedGlobalPose();
+  // public void addVisionReading(){
+  //   var visionEst = vision.getEstimatedGlobalPose();
 
-        visionEst.ifPresent(
-                est -> {
-                    // Change our trust in the measurement based on the tags we can see
-                    var estStdDevs = vision.getEstimationStdDevs();
+  //       visionEst.ifPresent(
+  //               est -> {
+  //                   // Change our trust in the measurement based on the tags we can see
+  //                   var estStdDevs = vision.getEstimationStdDevs();
 
-                    swerveDrive.addVisionMeasurement(
-                            est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-                });
-  }
+  //                   swerveDrive.addVisionMeasurement(
+  //                           est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+  //               });
+  // }
 
   /**
    * Gets the swerve drive object.
@@ -392,34 +425,17 @@ public class SwerveSubsystem extends BaseSubsystem {
 
   //Methods for allignment
 
-  public Pose2d getReefPoseLeft() {
-    Pose2d nearestTagPose1 = this.getPose().nearest(FieldUtils.getReefAprilTags());
-    double xOffset1 = (0.71 / 2) + 0.11;
-    double yOffset1 = 0;
-    yOffset1 += 0.165;
-
-    Pose2d targetPose1 = nearestTagPose1.plus(new Transform2d(xOffset1, yOffset1, Rotation2d.k180deg));
-    return targetPose1;
-  }
-
-  public Pose2d getReefPoseRight() {
-    Pose2d nearestTagPose2 = this.getPose().nearest(FieldUtils.getReefAprilTags());
-    double xOffset2 = (0.71 / 2) + 0.11;
-    double yOffset2 = 0;
-    yOffset2 -= 0.173;
-
-    Pose2d targetPose2 = nearestTagPose2.plus(new Transform2d(xOffset2, yOffset2, Rotation2d.k180deg));
-    return targetPose2;
-  }
+  
   
   public Command driveToReefRight() {
     PathConstraints constraints = new PathConstraints(
         1, 1,
         Units.degreesToRadians(180), Units.degreesToRadians(180));
-    Pose2d targetPose1 = getReefPoseRight();
+    Pose2d targetPose2 = getReefPoseLeft();
+
     return (Commands.runOnce(() -> {
       System.out.println("Drive to reef right finished");
-    })).andThen(AutoBuilder.pathfindToPose(targetPose1, constraints));
+    })).andThen(generateCommand());
   }
 
   public Command driveToReefLeft() {

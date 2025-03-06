@@ -15,7 +15,7 @@ public class CoralIntake extends Command {
 
   @Override
   public void initialize() {
-    intake.setIntakeSpeed(-0.4);
+    intake.setIntakeSpeed(-0.5);
   }
 
   @Override
@@ -28,6 +28,6 @@ public class CoralIntake extends Command {
 
   @Override
   public boolean isFinished() {
-    return intake.getCoralSensor() == true;
+    return intake.getCoralSensor() == true && intake.getCoralSensor2() == true;
   }
 }

@@ -30,7 +30,8 @@ public class IntakeSubsystem extends BaseSubsystem {
     private final RelativeEncoder m_pivotEncoder;
 
     private final DigitalInput m_coralSensor;
-    private final DigitalInput m_limitSwitch;
+    //private final DigitalInput m_limitSwitch;
+    private final DigitalInput m_coralSensor2;
 
     private SparkClosedLoopController m_pivotPIDController;
 
@@ -80,8 +81,9 @@ public class IntakeSubsystem extends BaseSubsystem {
                 PersistMode.kPersistParameters);
 
         m_coralSensor = new DigitalInput(intakeConstants.proximitySensorId);
+        m_coralSensor2 = new DigitalInput(intakeConstants.proximitySensor2);
 
-        m_limitSwitch = new DigitalInput(intakeConstants.limitSwitcherId);
+       // m_limitSwitch = new DigitalInput(intakeConstants.limitSwitcherId);
 
         intakeIO = new IntakeIOInputs();
 
@@ -105,9 +107,9 @@ public class IntakeSubsystem extends BaseSubsystem {
 
     @Override
     public void periodic(){
-         if (!m_limitSwitch.get()) {
-            m_pivotEncoder.setPosition(0);
-        }
+        //  if (!m_limitSwitch.get()) {
+        //     m_pivotEncoder.setPosition(0);
+        // }
 
         if (IntakeState.isEmpty == false && !getCoralSensor()) {
             m_intakeMotor.set(0.3);
@@ -151,9 +153,11 @@ public class IntakeSubsystem extends BaseSubsystem {
 
     @Override
     protected void outputHighTelemetry() {
-        SmartDashboard.putBoolean("coral", getCoralSensor());
+        SmartDashboard.putBoolean("coral 1", getCoralSensor());
+        SmartDashboard.putBoolean("coral 2", getCoralSensor2());
+
         SmartDashboard.putNumber("intake angle", getPivotAngle());
-       SmartDashboard.putBoolean("intake switch", m_limitSwitch.get()); 
+      // SmartDashboard.putBoolean("intake switch", m_limitSwitch.get()); 
     }
 
     public void setIntakeSpeed(double speed) {
@@ -179,6 +183,10 @@ public class IntakeSubsystem extends BaseSubsystem {
 
     public boolean getCoralSensor() {
         return m_coralSensor.get();
+    }
+
+    public boolean getCoralSensor2(){
+        return !m_coralSensor2.get();
     }
 
     public void setPositionUp(){
