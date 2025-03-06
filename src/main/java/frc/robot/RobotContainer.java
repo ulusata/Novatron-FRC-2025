@@ -9,6 +9,7 @@ import org.json.simple.parser.ParseException;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
@@ -19,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.abstracts.BaseSubsystem;
 import frc.robot.RobotState.IntakeState;
 import frc.robot.commands.Autos.L2Cycle;
+import frc.robot.commands.Autos.L4Cycle;
 import frc.robot.commands.Autos.test;
 import frc.robot.commands.Elevator.GoToLevelCommand;
 import frc.robot.commands.Intake.CoralAdjust;
@@ -49,6 +51,8 @@ public class RobotContainer {
    private final ElevatorSubsystem elevator = ElevatorSubsystem.getInstance();
    // private final VisionSubsystem vision = VisionSubsystem.getInstance();
     private final IntakeSubsystem intake = IntakeSubsystem.getInstance();
+
+    private SendableChooser<Command> m_commands = new SendableChooser<>();
 
     private Command fastDrive;
     private Command preciseDrive;
@@ -84,6 +88,7 @@ public class RobotContainer {
         
         configureSubsystems();
         configureNamedCommands();
+        configureAutonomous();
         configureBindings();
 
     }
@@ -191,14 +196,21 @@ public class RobotContainer {
                 .andThen(Commands.runOnce(() -> intake.setIntakeSpeed(0), intake)));
     }
 
-    public Command getAutonomousCommand()  {
+    public void configureAutonomous(){
         try {
-                return new L2Cycle(drivebase, elevator, intake);
+                m_commands.addOption("L4 One", new L4Cycle(drivebase, elevator, intake));
+                m_commands.addOption("L2 One", new L2Cycle(drivebase, elevator, intake));
+                m_commands.addOption("Test", new test(drivebase, elevator, intake));
 
+                SmartDashboard.putData("Autos", m_commands);
         } catch (ParseException | edu.wpi.first.util.struct.parser.ParseException e) {
                 e.printStackTrace();
-                return null;
         }
+    }
+
+
+    public Command getAutonomousCommand()  {
+        return m_commands.getSelected();
     }
 
     public List<BaseSubsystem> getSubsystems() {
