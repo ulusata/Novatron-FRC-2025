@@ -37,7 +37,7 @@ public class L4Cycle extends SequentialCommandGroup {
       intake = in;
 
       try{
-        pathGroup = PathPlannerAuto.getPathGroupFromAutoFile("L2Cycle");
+        pathGroup = PathPlannerAuto.getPathGroupFromAutoFile("Down");
       }
 
       catch (IOException e) {

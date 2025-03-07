@@ -66,9 +66,9 @@ public class SwerveSubsystem extends BaseSubsystem {
   private final SwerveDrive swerveDrive;
 
   //Initial positions for both side
-    private final Pose2d blueInitalPosition = new Pose2d(new Translation2d(Meter.of(7.380), Meter.of(5.210)),
+    private final Pose2d blueInitalPosition = new Pose2d(new Translation2d(Meter.of(7.380), Meter.of(4.112)),
       Rotation2d.fromDegrees(180));
-    private static final Pose2d redInitalPosition = new Pose2d(new Translation2d(Meter.of(18), Meter.of(2)),
+    private static final Pose2d redInitalPosition = new Pose2d(new Translation2d(Meter.of(10.1), Meter.of(4.112)),
       Rotation2d.fromDegrees(0));
 
   /**

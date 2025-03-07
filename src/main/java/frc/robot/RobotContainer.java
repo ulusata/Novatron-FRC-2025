@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.abstracts.BaseSubsystem;
 import frc.robot.RobotState.IntakeState;
 import frc.robot.commands.Autos.L2Cycle;
+import frc.robot.commands.Autos.L4CMiddle;
 import frc.robot.commands.Autos.L4Cycle;
 import frc.robot.commands.Autos.test;
 import frc.robot.commands.Elevator.GoToLevelCommand;
@@ -146,11 +147,11 @@ public class RobotContainer {
         //m_driverController.b().onTrue(pivotDown);
 
 
-        //Allignment
-        m_driverController.povRight().onTrue(new DeferredCommand(
-                               () -> drivebase.driveToReefRight(), Set.of(drivebase)));
-         m_driverController.povLeft().onTrue(new DeferredCommand(
-                               () -> drivebase.driveToReefLeft(), Set.of(drivebase)));
+        // //Allignment
+        // m_driverController.povRight().onTrue(new DeferredCommand(
+        //                        () -> drivebase.driveToReefRight(), Set.of(drivebase)));
+        //  m_driverController.povLeft().onTrue(new DeferredCommand(
+        //                        () -> drivebase.driveToReefLeft(), Set.of(drivebase)));
 
        //Odometry Reset
         m_driverController.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometryAtStart()));
@@ -198,11 +199,13 @@ public class RobotContainer {
 
     public void configureAutonomous(){
         try {
-                m_commands.addOption("L4 One", new L4Cycle(drivebase, elevator, intake));
-                m_commands.addOption("L2 One", new L2Cycle(drivebase, elevator, intake));
+                m_commands.addOption("L4 Down", new L4Cycle(drivebase, elevator, intake));
+                m_commands.addOption("L2 Down", new L2Cycle(drivebase, elevator, intake));
+                m_commands.addOption("L4 Middle", new L4CMiddle(drivebase, elevator, intake));
                 m_commands.addOption("Test", new test(drivebase, elevator, intake));
 
                 SmartDashboard.putData("Autos", m_commands);
+
         } catch (ParseException | edu.wpi.first.util.struct.parser.ParseException e) {
                 e.printStackTrace();
         }

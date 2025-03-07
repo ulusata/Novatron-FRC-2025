@@ -22,14 +22,14 @@ import frc.robot.subsystems.Elavator.ElevatorSubsystem;
 import frc.robot.subsystems.Intake.IntakeSubsystem;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
 
-public class L2Cycle extends SequentialCommandGroup {
+public class L4CMiddle extends SequentialCommandGroup {
   SwerveSubsystem swerve;
   ElevatorSubsystem elevator;
   IntakeSubsystem intake;
 
   List<PathPlannerPath> pathGroup;
 
-  public L2Cycle(SwerveSubsystem swerve,
+  public L4CMiddle(SwerveSubsystem swerve,
     ElevatorSubsystem el,
     IntakeSubsystem in) throws org.json.simple.parser.ParseException, ParseException {
       this.swerve = swerve;
@@ -37,7 +37,7 @@ public class L2Cycle extends SequentialCommandGroup {
       intake = in;
 
       try{
-        pathGroup = PathPlannerAuto.getPathGroupFromAutoFile("Down");
+        pathGroup = PathPlannerAuto.getPathGroupFromAutoFile("Middle");
       }
 
       catch (IOException e) {
