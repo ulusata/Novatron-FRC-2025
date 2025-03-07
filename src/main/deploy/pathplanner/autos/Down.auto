@@ -7,7 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Start2H"
+            "pathName": "DownStart"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Down2Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DowntoReef1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DownReeftoSource1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DowtoReef2"
           }
         }
       ]

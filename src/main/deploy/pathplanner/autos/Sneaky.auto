@@ -13,19 +13,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "GoToSourceFromH"
+            "pathName": "Sneaky1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Source2C"
+            "pathName": "Sneaky2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "GoToSourceFromC"
+            "pathName": "Sneaky3"
           }
         }
       ]

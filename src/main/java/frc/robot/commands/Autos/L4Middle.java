@@ -1,6 +1,7 @@
 package frc.robot.commands.Autos;
 
 import java.io.IOException;
+import java.security.AuthProvider;
 import java.util.List;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -22,14 +23,14 @@ import frc.robot.subsystems.Elavator.ElevatorSubsystem;
 import frc.robot.subsystems.Intake.IntakeSubsystem;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
 
-public class L4CMiddle extends SequentialCommandGroup {
+public class L4Middle extends SequentialCommandGroup {
   SwerveSubsystem swerve;
   ElevatorSubsystem elevator;
   IntakeSubsystem intake;
 
   List<PathPlannerPath> pathGroup;
 
-  public L4CMiddle(SwerveSubsystem swerve,
+  public L4Middle(SwerveSubsystem swerve,
     ElevatorSubsystem el,
     IntakeSubsystem in) throws org.json.simple.parser.ParseException, ParseException {
       this.swerve = swerve;
@@ -46,12 +47,29 @@ public class L4CMiddle extends SequentialCommandGroup {
 
     addCommands(
       AutoBuilder.resetOdom(pathGroup.get(0).getStartingHolonomicPose().get()),
-      AutoBuilder.followPath(pathGroup.get(0)),
       new SequentialCommandGroup(
+        AutoBuilder.followPath(pathGroup.get(0)),
         new GoToLevelCommand(elevator, elevatorConstant.kElevatorL4),
         new DropCoral(intake, elevator),
         new WaitCommand(0.2),
-        new GoToLevelCommand(elevator, elevatorConstant.kElevatorL1))
+        new GoToLevelCommand(elevator, elevatorConstant.kElevatorL1)),
+      new SequentialCommandGroup(
+        AutoBuilder.followPath(pathGroup.get(1)),
+        new CoralIntake(intake),
+        new CoralAdjust(intake)
+      ),
+      new SequentialCommandGroup(
+        AutoBuilder.followPath(pathGroup.get(2)),
+        new GoToLevelCommand(elevator, elevatorConstant.kElevatorL4),
+        new DropCoral(intake, elevator),
+        new WaitCommand(0.2),
+        new GoToLevelCommand(elevator, elevatorConstant.kElevatorL1)
+      ),
+      new SequentialCommandGroup(
+        AutoBuilder.followPath(pathGroup.get(3)),
+        new CoralIntake(intake),
+        new CoralAdjust(intake)
+      )
     );
       
   }

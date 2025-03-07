@@ -62,7 +62,7 @@ public class ElevatorSubsystem extends BaseSubsystem{
         SparkMaxConfig configLeftNeoMotorEncoder = new SparkMaxConfig();
 
         configLeftNeoMotorEncoder.closedLoop.pid(
-                0.085,
+                0.090,
                 0,
                 0)
                 .iZone(5)

@@ -22,14 +22,14 @@ import frc.robot.subsystems.Elavator.ElevatorSubsystem;
 import frc.robot.subsystems.Intake.IntakeSubsystem;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
 
-public class L4Cycle extends SequentialCommandGroup {
+public class Sneaky extends SequentialCommandGroup {
   SwerveSubsystem swerve;
   ElevatorSubsystem elevator;
   IntakeSubsystem intake;
 
   List<PathPlannerPath> pathGroup;
 
-  public L4Cycle(SwerveSubsystem swerve,
+  public Sneaky(SwerveSubsystem swerve,
     ElevatorSubsystem el,
     IntakeSubsystem in) throws org.json.simple.parser.ParseException, ParseException {
       this.swerve = swerve;
@@ -37,7 +37,7 @@ public class L4Cycle extends SequentialCommandGroup {
       intake = in;
 
       try{
-        pathGroup = PathPlannerAuto.getPathGroupFromAutoFile("Down");
+        pathGroup = PathPlannerAuto.getPathGroupFromAutoFile("Sneaky");
       }
 
       catch (IOException e) {
@@ -46,12 +46,30 @@ public class L4Cycle extends SequentialCommandGroup {
 
     addCommands(
       AutoBuilder.resetOdom(pathGroup.get(0).getStartingHolonomicPose().get()),
-      AutoBuilder.followPath(pathGroup.get(0)),
       new SequentialCommandGroup(
+        AutoBuilder.followPath(pathGroup.get(0)),
         new GoToLevelCommand(elevator, elevatorConstant.kElevatorL4),
         new DropCoral(intake, elevator),
         new WaitCommand(0.2),
-        new GoToLevelCommand(elevator, elevatorConstant.kElevatorL1))
+        new GoToLevelCommand(elevator, elevatorConstant.kElevatorL1)
+      ),
+      new SequentialCommandGroup(
+        new WaitCommand(1),
+        AutoBuilder.followPath(pathGroup.get(1))
+      ),
+      new SequentialCommandGroup(
+        new WaitCommand(2),
+        AutoBuilder.followPath(pathGroup.get(2)),
+        new CoralIntake(intake),
+        new CoralAdjust(intake)
+      ),
+      new SequentialCommandGroup(
+        AutoBuilder.followPath(pathGroup.get(3)),
+        new GoToLevelCommand(elevator, elevatorConstant.kElevatorL2),
+        new DropCoral(intake, elevator),
+        new WaitCommand(0.2),
+        new GoToLevelCommand(elevator, elevatorConstant.kElevatorL1)
+      )
     );
       
   }
