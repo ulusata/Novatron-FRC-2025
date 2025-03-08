@@ -62,12 +62,12 @@ public class ElevatorSubsystem extends BaseSubsystem{
         SparkMaxConfig configLeftNeoMotorEncoder = new SparkMaxConfig();
 
         configLeftNeoMotorEncoder.closedLoop.pid(
-                0.090,
+                0.085,
                 0,
                 0)
                 .iZone(5)
-                .minOutput(-0.5)
-                .maxOutput(0.5 );
+                .minOutput(-0.62)
+                .maxOutput(0.62);
 
         configLeftNeoMotorEncoder.smartCurrentLimit(40);
         configLeftNeoMotorEncoder.idleMode(IdleMode.kBrake);
@@ -94,9 +94,9 @@ public class ElevatorSubsystem extends BaseSubsystem{
 
     @Override
     public void periodic(){
-        // if (!limitSwitch.get()) {
-        //     m_leftNeoMotorEncoder.setPosition(0);
-        // }
+        if (!limitSwitch.get()) {
+            m_leftNeoMotorEncoder.setPosition(0);
+        }
 
         if(getPosition() + elevatorConstant.kToleranceElevator >= elevatorConstant.kElevatorL4){
             intakeConstants.setSpeed(intakeConstants.CoraL4IntakeSpeed);
@@ -121,7 +121,7 @@ public class ElevatorSubsystem extends BaseSubsystem{
                     mCurState.position,
                     SparkBase.ControlType.kPosition,
                     ClosedLoopSlot.kSlot0,
-                    0.75,
+                    0.12,
                     ArbFFUnits.kVoltage);
         } else {
             m_leftNeoMotor.setVoltage(elevatorIO.elevatorVolt);

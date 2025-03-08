@@ -13,25 +13,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Down2Source"
+            "pathName": "DownToSource"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "DowntoReef1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "DownReeftoSource1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "DowtoReef2"
+            "pathName": "DownSourceToReef"
           }
         }
       ]

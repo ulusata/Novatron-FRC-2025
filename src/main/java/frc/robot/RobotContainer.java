@@ -19,15 +19,10 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.abstracts.BaseSubsystem;
 import frc.robot.RobotState.IntakeState;
+import frc.robot.commands.Autos.DownL4;
 import frc.robot.commands.Autos.DownOneL4;
-import frc.robot.commands.Autos.L2Down;
-import frc.robot.commands.Autos.L4Middle;
 import frc.robot.commands.Autos.L4Up;
-import frc.robot.commands.Autos.MiddleOneL4;
-import frc.robot.commands.Autos.Sneaky;
-import frc.robot.commands.Autos.Taxi;
 import frc.robot.commands.Autos.UpOneL4;
-import frc.robot.commands.Autos.test;
 import frc.robot.commands.Elevator.GoToLevelCommand;
 import frc.robot.commands.Intake.CoralAdjust;
 import frc.robot.commands.Intake.CoralIntake;
@@ -73,9 +68,9 @@ public class RobotContainer {
                 () -> m_driverController.getLeftX() * -1)
                 .withControllerRotationAxis(m_driverController::getRightX)
                 .deadband(0.1)
-                .scaleTranslation(0.4)
+                .scaleTranslation(0.6)
                 .scaleRotation(-0.8)
-                .allianceRelativeControl(false);
+                .allianceRelativeControl(true);
 
         fastDrive = drivebase.driveFieldOriented(driveAngularVelocity);
 
@@ -86,7 +81,7 @@ public class RobotContainer {
                 .deadband(0.1)
                 .scaleTranslation(0.07)
                 .scaleRotation(-0.3)
-                .allianceRelativeControl(false);
+                .allianceRelativeControl(true);
 
         preciseDrive = drivebase.driveFieldOriented(driveAngularVelocityPrecise);
 
@@ -138,10 +133,10 @@ public class RobotContainer {
 
 
         //Manual elevator
-        Command upElevator = new RunCommand(() -> elevator.goToLevel(elevator.getPosition() + 1), elevator);
+        Command upElevator = new RunCommand(() -> elevator.goToLevel(elevator.getPosition() + 1.5), elevator);
         m_driverAsisstant.rightTrigger().whileTrue(upElevator);
 
-        Command downElevator = new RunCommand(() -> elevator.goToLevel(elevator.getPosition() + -1), elevator);
+        Command downElevator = new RunCommand(() -> elevator.goToLevel(elevator.getPosition() + -1.5), elevator);
         m_driverAsisstant.leftTrigger().whileTrue(downElevator);
 
         //For test purposes
@@ -159,9 +154,9 @@ public class RobotContainer {
         //                        () -> drivebase.driveToReefLeft(), Set.of(drivebase)));
 
        //Odometry Reset
-        m_driverController.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometryAtStart()));
+        // m_driverController.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometryAtStart()));
 
-      m_driverController.a().onTrue(Commands.runOnce(() -> this.drivebase.zeroGyro(), this.drivebase));
+      m_driverController.a().onTrue(Commands.runOnce(() -> this.drivebase.zeroGyroWithAlliance(), this.drivebase));
 
 
     }
@@ -205,18 +200,11 @@ public class RobotContainer {
     public void configureAutonomous(){
         try {
                 m_commands.addOption("L4 Up", new L4Up(drivebase, elevator, intake));
-                m_commands.addOption("L2 Down", new L2Down(drivebase, elevator, intake));
-                m_commands.addOption("L4 Middle", new L4Middle(drivebase, elevator, intake));
+                m_commands.addOption("L4 Down", new DownL4(drivebase, elevator, intake));
+
 
                 m_commands.addOption("Down One L4", new DownOneL4(drivebase, elevator, intake));
                 m_commands.addOption("Up One L4", new UpOneL4(drivebase, elevator, intake));
-                m_commands.addOption("Middle One L4", new MiddleOneL4(drivebase, elevator, intake));
-
-                m_commands.addOption("Sneaky", new Sneaky(drivebase, elevator, intake));
-                m_commands.addOption("Taxi", new Taxi(drivebase, elevator, intake));
-
-
-                m_commands.addOption("Test", new test(drivebase, elevator, intake));
 
                 SmartDashboard.putData("Autos", m_commands);
 

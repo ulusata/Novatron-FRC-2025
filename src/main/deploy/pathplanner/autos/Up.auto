@@ -7,25 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "UpStart2H"
+            "pathName": "UpStart"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "UpH2Source"
+            "pathName": "UpToSource"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "UpSource2Reef"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "UpReef2Source"
+            "pathName": "UpSourceToReef"
           }
         }
       ]

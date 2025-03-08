@@ -9,6 +9,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.util.struct.parser.ParseException;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.Elevator.GoToLevelCommand;
@@ -45,6 +46,7 @@ public class L4Up extends SequentialCommandGroup {
     }     
 
     addCommands(
+      Commands.runOnce(() -> swerve.zeroGyroWithAlliance()),
       AutoBuilder.resetOdom(pathGroup.get(0).getStartingHolonomicPose().get()),
       new SequentialCommandGroup(
         AutoBuilder.followPath(pathGroup.get(0)),
@@ -64,11 +66,6 @@ public class L4Up extends SequentialCommandGroup {
           new DropCoral(intake, elevator),
           new WaitCommand(0.2),
           new GoToLevelCommand(elevator, elevatorConstant.kElevatorL1)
-      ),
-      new SequentialCommandGroup(
-        AutoBuilder.followPath(pathGroup.get(3)),
-        new CoralIntake(intake),
-        new CoralAdjust(intake)
       )
     );
       
