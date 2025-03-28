@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DownStart"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DownToSource"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DownSourceToReef"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

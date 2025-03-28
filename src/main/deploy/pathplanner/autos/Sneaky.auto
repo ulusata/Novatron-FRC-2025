@@ -1,0 +1,37 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Start2H"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Sneaky1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Sneaky2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Sneaky3"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
