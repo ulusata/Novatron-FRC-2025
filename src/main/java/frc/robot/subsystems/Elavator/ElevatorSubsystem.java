@@ -106,14 +106,23 @@ public class ElevatorSubsystem extends BaseSubsystem{
         }
     }
 
+    //limit switch update
+    public boolean isAtLowerLimit() {
+        return !limitSwitch.get();
+    }
+
     @Override
     public void writePeriodicOutputs() {
         double curTime = Timer.getFPGATimestamp();
         double dt = curTime - prevUpdateTime;
         prevUpdateTime = curTime;
         if (elevatorIO.elevator_pos_control) {
-            mGoalState.position = elevatorIO.elevator_target;
+            //limit switch update
+            if (isAtLowerLimit() && elevatorIO.elevator_target < getPosition()) {
+                elevatorIO.elevator_target = getPosition();
+            }
 
+            mGoalState.position = elevatorIO.elevator_target;
             prevUpdateTime = curTime;
             mCurState = mProfile.calculate(dt, mCurState, mGoalState);
 
