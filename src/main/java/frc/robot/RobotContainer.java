@@ -5,20 +5,20 @@ import java.util.List;
 import java.util.Set;
 
 import org.json.simple.parser.ParseException;
-import org.opencv.core.Mat;
+//import org.opencv.core.Mat;
 
 import com.pathplanner.lib.auto.NamedCommands;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.CvSink;
-import edu.wpi.first.cscore.UsbCamera;
+//import edu.wpi.first.cameraserver.CameraServer;
+//import edu.wpi.first.cscore.CvSink;
+//import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
+//import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
+//import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.abstracts.BaseSubsystem;
@@ -63,13 +63,13 @@ public class RobotContainer {
     SendableChooser<Command> m_chooser = new SendableChooser<>();
 
     public RobotContainer() {
-        initializeCamera();
+        
        SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
                 () -> m_driverController.getLeftY() * -1,
                 () -> m_driverController.getLeftX() * -1)
                 .withControllerRotationAxis(m_driverController::getRightX)
                 .deadband(0.1)
-                .scaleTranslation(0.5)
+                .scaleTranslation(0.65)//0.5
                 .scaleRotation(-0.8)
                 .allianceRelativeControl(true);
 
@@ -80,7 +80,7 @@ public class RobotContainer {
                 () -> m_driverController.getLeftX() * -1)
                 .withControllerRotationAxis(m_driverController::getRightX)
                 .deadband(0.1)
-                .scaleTranslation(0.07)
+                .scaleTranslation(0.095)//0.07
                 .scaleRotation(-0.3)
                 .allianceRelativeControl(true);
 
@@ -215,28 +215,7 @@ public class RobotContainer {
                 e.printStackTrace();
         }
     }
-private void initializeCamera() {
-    // Start the camera
-    UsbCamera camera = CameraServer.startAutomaticCapture();
-    camera.setResolution(320, 240);
-    camera.setFPS(30);
 
-    // Get the video
-    CvSink cvSink = CameraServer.getVideo();
-
-    // Create an OpenCV frame to hold the image from the camera feed
-    Mat frame = new Mat();
-
-    // Start a thread to process the video frames
-    new Thread(() -> {
-        while (!Thread.interrupted()) {
-            if (cvSink.grabFrame(frame) == 0) {
-                continue;
-            }
-            // Process the frame here TODO
-        }
-    }).start();
-}
 
     public Command getAutonomousCommand()  {
         return m_commands.getSelected();
