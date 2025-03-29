@@ -5,9 +5,13 @@ import java.util.List;
 import java.util.Set;
 
 import org.json.simple.parser.ParseException;
+import org.opencv.core.Mat;
 
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -59,7 +63,7 @@ public class RobotContainer {
     SendableChooser<Command> m_chooser = new SendableChooser<>();
 
     public RobotContainer() {
-
+        initializeCamera();
        SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
                 () -> m_driverController.getLeftY() * -1,
                 () -> m_driverController.getLeftX() * -1)
@@ -211,7 +215,28 @@ public class RobotContainer {
                 e.printStackTrace();
         }
     }
+private void initializeCamera() {
+    // Start the camera
+    UsbCamera camera = CameraServer.startAutomaticCapture();
+    camera.setResolution(320, 240);
+    camera.setFPS(30);
 
+    // Get the video
+    CvSink cvSink = CameraServer.getVideo();
+
+    // Create an OpenCV frame to hold the image from the camera feed
+    Mat frame = new Mat();
+
+    // Start a thread to process the video frames
+    new Thread(() -> {
+        while (!Thread.interrupted()) {
+            if (cvSink.grabFrame(frame) == 0) {
+                continue;
+            }
+            // Process the frame here TODO
+        }
+    }).start();
+}
 
     public Command getAutonomousCommand()  {
         return m_commands.getSelected();

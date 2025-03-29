@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.util.List;
 
+import com.pathplanner.lib.events.CancelCommandEvent;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -52,6 +54,7 @@ public class Robot extends TimedRobot {
     m_allSubsystems.forEach(subsystem -> subsystem.writeToLog());
 
     CommandScheduler.getInstance().run();
+
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
