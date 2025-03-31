@@ -11,6 +11,7 @@ import edu.wpi.first.util.struct.parser.ParseException;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.Elevator.GoToLevelCommand;
@@ -48,7 +49,10 @@ public class DownL4 extends SequentialCommandGroup {
       Commands.runOnce(() -> swerve.zeroGyroWithAlliance()),
       AutoBuilder.resetOdom(pathGroup.get(0).getStartingHolonomicPose().get()),
       new SequentialCommandGroup(
-        AutoBuilder.followPath(pathGroup.get(0)),
+        new ParallelCommandGroup(
+          AutoBuilder.followPath(pathGroup.get(0)),
+          new CoralIntake(intake)
+        ),
         new GoToLevelCommand(elevator, elevatorConstant.kElevatorL4),
         new DropCoral(intake, elevator),
         new WaitCommand(0.2),
