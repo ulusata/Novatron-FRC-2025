@@ -60,6 +60,7 @@ public class RobotContainer {
     private Command preciseDrive;
     private Command preciseDrive2;
     
+    private double elevatorLevel = 0;
     
     SendableChooser<Command> m_chooser = new SendableChooser<>();
 
@@ -132,14 +133,23 @@ public class RobotContainer {
        // m_driverController.y().onTrue(Commands.runOnce(() -> intake.setIntakeSpeed(intakeConstants.AlgeaIntakeSpeed), intake));
 
 
-        //Elevator Levels
-        m_driverAsisstant.povLeft().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kBase));
+        // //Elevator Levels
+        // m_driverAsisstant.povLeft().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kBase));
 
-        m_driverAsisstant.povDown().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL2));
+        // m_driverAsisstant.povDown().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL2));
 
-        m_driverAsisstant.povRight().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL3));
+        // m_driverAsisstant.povRight().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL3));
 
-        m_driverAsisstant.povUp().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL4));
+        // m_driverAsisstant.povUp().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL4));
+
+        //Lazy Elevator Commands
+        m_driverAsisstant.povLeft().onTrue(Commands.runOnce(() -> this.elevatorLevel = elevatorConstant.kBase));
+        m_driverAsisstant.povDown().onTrue(Commands.runOnce(() -> this.elevatorLevel = elevatorConstant.kElevatorL2));
+        m_driverAsisstant.povRight().onTrue(Commands.runOnce(() -> this.elevatorLevel = elevatorConstant.kElevatorL3));
+        m_driverAsisstant.povUp().onTrue(Commands.runOnce(() -> this.elevatorLevel = elevatorConstant.kElevatorL4));
+
+        m_driverController.x().onTrue(new GoToLevelCommand(elevator, this.elevatorLevel));
+
 
         //m_driverAsisstant.a().onTrue(new GoToLevelCommand(elevator, elevatorConstant.kElevatorAlgeaLeveL1));
 
