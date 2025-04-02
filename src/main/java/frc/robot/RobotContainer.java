@@ -58,6 +58,7 @@ public class RobotContainer {
 
     private Command fastDrive;
     private Command preciseDrive;
+    private Command preciseDrive2;
     
     
     SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -69,7 +70,7 @@ public class RobotContainer {
                 () -> m_driverController.getLeftX() * -1)
                 .withControllerRotationAxis(m_driverController::getRightX)
                 .deadband(0.1)
-                .scaleTranslation(0.65)//0.5
+                .scaleTranslation(0.75)//0.5
                 .scaleRotation(-0.8)
                 .allianceRelativeControl(true);
 
@@ -86,6 +87,17 @@ public class RobotContainer {
 
         preciseDrive = drivebase.driveFieldOriented(driveAngularVelocityPrecise);
 
+        SwerveInputStream driveAngularVelocityPrecise2 = SwerveInputStream.of(drivebase.getSwerveDrive(),
+                () -> m_driverController.getLeftY() * -1,
+                () -> m_driverController.getLeftX() * -1)
+                .withControllerRotationAxis(m_driverController::getRightX)
+                .deadband(0.1)
+                .scaleTranslation(0.38)//0.07
+                .scaleRotation(-0.4)
+                .allianceRelativeControl(true);
+
+        preciseDrive2 = drivebase.driveFieldOriented(driveAngularVelocityPrecise2);
+
         drivebase.setDefaultCommand(fastDrive); 
         
         configureSubsystems();
@@ -99,7 +111,7 @@ public class RobotContainer {
 
         //Precise Drive
         m_driverController.leftBumper().whileTrue(preciseDrive);
-        m_driverController.rightBumper().whileTrue(preciseDrive);
+        m_driverController.rightBumper().whileTrue(preciseDrive2);
 
         //Game Score Manipulation
         m_driverController.leftTrigger().onTrue(
