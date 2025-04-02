@@ -99,6 +99,7 @@ public class RobotContainer {
 
         //Precise Drive
         m_driverController.leftBumper().whileTrue(preciseDrive);
+        m_driverController.rightBumper().whileTrue(preciseDrive);
 
         //Game Score Manipulation
         m_driverController.leftTrigger().onTrue(
