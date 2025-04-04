@@ -34,7 +34,6 @@ import frc.robot.commands.Elevator.GoToLevelCommand;
 import frc.robot.commands.Intake.CoralAdjust;
 import frc.robot.commands.Intake.CoralIntake;
 import frc.robot.commands.Intake.DropCoral;
-import frc.robot.commands.Swerve.SmoothDrive;
 import frc.robot.constants.elevatorConstant;
 import frc.robot.constants.intakeConstants;
 import frc.robot.subsystems.Elavator.ElevatorSubsystem;
@@ -114,10 +113,8 @@ public class RobotContainer {
     public void configureBindings(){
 
         //Precise Drive
-        //m_driverController.leftBumper().whileTrue(preciseDrive);
+        m_driverController.leftBumper().whileTrue(preciseDrive);
         m_driverController.rightBumper().whileTrue(preciseDrive2);
-
-        m_driverController.leftBumper().whileTrue(new SmoothDrive(drivebase, 0.095, m_driverController)); //DELETE IF NOT WORKING
 
         //Game Score Manipulation
         m_driverController.leftTrigger().onTrue(
