@@ -70,7 +70,7 @@ public class RobotContainer {
                 () -> m_driverController.getLeftX() * -1)
                 .withControllerRotationAxis(m_driverController::getRightX)
                 .deadband(0.1)
-                .scaleTranslation(0.75)//0.5
+                .scaleTranslation(0.8)//0.5
                 .scaleRotation(-0.8)
                 .allianceRelativeControl(true);
 

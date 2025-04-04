@@ -66,8 +66,8 @@ public class ElevatorSubsystem extends BaseSubsystem{
                 0,
                 0)
                 .iZone(5)
-                .minOutput(-0.5) //42
-                .maxOutput(0.75); //68
+                .minOutput(-0.65) //42
+                .maxOutput(0.85); //68
 
         configLeftNeoMotorEncoder.smartCurrentLimit(40);
         configLeftNeoMotorEncoder.idleMode(IdleMode.kBrake);
