@@ -28,6 +28,7 @@ import frc.robot.commands.Autos.DownL4;
 import frc.robot.commands.Autos.DownOneL4;
 import frc.robot.commands.Autos.L4Up;
 import frc.robot.commands.Autos.Middle;
+import frc.robot.commands.Autos.Taxi;
 import frc.robot.commands.Autos.UpOneL4;
 import frc.robot.commands.Elevator.GoToLevelCommand;
 import frc.robot.commands.Intake.CoralAdjust;
@@ -222,7 +223,7 @@ public class RobotContainer {
         try {
                 m_commands.addOption("L4 Up", new L4Up(drivebase, elevator, intake));
                 m_commands.addOption("L4 Down", new DownL4(drivebase, elevator, intake));
-
+                m_commands.addOption("Taxi", new Taxi(drivebase, elevator, intake));
 
                 m_commands.addOption("Down One L4", new DownOneL4(drivebase, elevator, intake));
                 m_commands.addOption("Up One L4", new UpOneL4(drivebase, elevator, intake));
