@@ -116,7 +116,7 @@ public class RobotContainer {
        // m_driverController.leftBumper().whileTrue(preciseDrive);
         m_driverController.rightBumper().whileTrue(preciseDrive2);
 
-        m_driverController.leftBumper().whileTrue(new SmoothDrive(drivebase, 0.095, this.m_driverController).alongWith(Commands.defer(() -> SwerveState.getCommand(), Set.of(drivebase)))); //DELETE IF NOT WORKING
+        m_driverController.leftBumper().whileTrue(new SmoothDrive(drivebase, 0.095, m_driverController)); //DELETE IF NOT WORKING
 
         //Game Score Manipulation
         m_driverController.leftTrigger().onTrue(

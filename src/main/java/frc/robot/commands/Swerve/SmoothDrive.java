@@ -9,40 +9,44 @@ import frc.robot.subsystems.Swerve.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 
 public class SmoothDrive extends Command {
-  SwerveSubsystem swerve;
-  double targetLevel;
-  double start = 0.75;
-  SwerveInputStream stream;
-  CommandXboxController driver;
-  Command smoothCommand;
-  Timer timer = new Timer();
-  public SmoothDrive(SwerveSubsystem sw, double targetLevel, CommandXboxController driver1) {
+  private final SwerveSubsystem swerve;
+    private final CommandXboxController driver;
 
-    stream = SwerveInputStream.of(swerve.getSwerveDrive(),
-    () -> driver.getLeftY() * -1,
-    () -> driver.getLeftX() * -1)
-    .withControllerRotationAxis(driver::getRightX)
-    .deadband(0.1)
-    .scaleTranslation(0.75)//0.5
-    .scaleRotation(-0.8)
-    .allianceRelativeControl(true);
+    private double currentScale = 0.75;
+    private final double targetScale;
+    private final double scaleStep = 0.01;
 
-    smoothCommand = swerve.driveFieldOriented(stream);
-    SwerveState.setCommand(smoothCommand);
+  public SmoothDrive(SwerveSubsystem swerve, double targetScale, CommandXboxController driver) {
 
-    start = 0.75;
-
-    swerve = sw;
-    driver = driver1;
+        this.swerve = swerve;
+        this.targetScale = targetScale;
+        this.driver = driver;
   }
 
   @Override
   public void initialize() {
+    currentScale = 0.75;
   }
 
   @Override
   public void execute() {
-    goToTheLevel();
+      if (Math.abs(currentScale - targetScale) > scaleStep) {
+        currentScale += (targetScale > currentScale) ? scaleStep : -scaleStep;
+    } else {
+        currentScale = targetScale;
+    }
+
+    // Build updated input stream with interpolated scaling
+    SwerveInputStream stream = SwerveInputStream.of(swerve.getSwerveDrive(),
+            () -> driver.getLeftY() * -1,
+            () -> driver.getLeftX() * -1)
+            .withControllerRotationAxis(driver::getRightX)
+            .deadband(0.1)
+            .scaleTranslation(currentScale)
+            .scaleRotation(-0.8)
+            .allianceRelativeControl(true);
+
+    swerve.driveFieldOriented(stream).execute(); // Run it every tick
   }
 
   @Override
@@ -52,26 +56,4 @@ public class SmoothDrive extends Command {
   public boolean isFinished() {
     return false;
   }
-
-  public Command goToTheLevel(){
-    for(double i = start; i <= targetLevel; i--){
-      stream = SwerveInputStream.of(swerve.getSwerveDrive(),
-      () -> driver.getLeftY() * -1,
-      () -> driver.getLeftX() * -1)
-      .withControllerRotationAxis(driver::getRightX)
-      .deadband(0.1)
-      .scaleTranslation(start)//0.5
-      .scaleRotation(-0.8)
-      .allianceRelativeControl(true);
-
-      smoothCommand = swerve.driveFieldOriented(stream);
-      SwerveState.setCommand(smoothCommand);
-
-      Commands.waitSeconds(0.02);
-      start--;
-    }
-
-    return swerve.driveFieldOriented(stream);
-  }
-
 }
