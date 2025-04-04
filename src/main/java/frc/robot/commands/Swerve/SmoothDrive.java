@@ -12,7 +12,7 @@ public class SmoothDrive extends Command {
   private final SwerveSubsystem swerve;
     private final CommandXboxController driver;
 
-    private double currentScale = 0.75;
+    private double currentScale = 0.8;
     private final double targetScale;
     private final double scaleStep = 0.01;
 
@@ -25,7 +25,7 @@ public class SmoothDrive extends Command {
 
   @Override
   public void initialize() {
-    currentScale = 0.75;
+    currentScale = 0.8;
   }
 
   @Override

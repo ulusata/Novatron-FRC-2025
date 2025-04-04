@@ -106,7 +106,7 @@ public class ElevatorSubsystem extends BaseSubsystem{
         }
     }
 
-    //limit switch update
+    //limit Switch
     public boolean isAtLowerLimit() {
         return !limitSwitch.get();
     }
@@ -117,7 +117,6 @@ public class ElevatorSubsystem extends BaseSubsystem{
         double dt = curTime - prevUpdateTime;
         prevUpdateTime = curTime;
         if (elevatorIO.elevator_pos_control) {
-            //limit switch update
             if (isAtLowerLimit() && elevatorIO.elevator_target < getPosition()) {
                 elevatorIO.elevator_target = getPosition();
             }

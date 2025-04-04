@@ -113,7 +113,7 @@ public class RobotContainer {
     public void configureBindings(){
 
         //Precise Drive
-       // m_driverController.leftBumper().whileTrue(preciseDrive);
+        //m_driverController.leftBumper().whileTrue(preciseDrive);
         m_driverController.rightBumper().whileTrue(preciseDrive2);
 
         m_driverController.leftBumper().whileTrue(new SmoothDrive(drivebase, 0.095, m_driverController)); //DELETE IF NOT WORKING
@@ -131,10 +131,10 @@ public class RobotContainer {
         
         m_driverController.rightTrigger().onTrue(new DropCoral(intake, elevator));
 
-       // m_driverController.rightBumper().onTrue(Commands.runOnce(() -> intake.setIntakeSpeed(0), intake));
+        //m_driverController.rightBumper().onTrue(Commands.runOnce(() -> intake.setIntakeSpeed(0), intake));
 
         //Algae Intake
-       // m_driverController.y().onTrue(Commands.runOnce(() -> intake.setIntakeSpeed(intakeConstants.AlgeaIntakeSpeed), intake));
+        //m_driverController.y().onTrue(Commands.runOnce(() -> intake.setIntakeSpeed(intakeConstants.AlgeaIntakeSpeed), intake));
 
 
         //Elevator Levels
