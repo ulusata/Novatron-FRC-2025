@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.abstracts.BaseSubsystem;
 import frc.robot.RobotState.IntakeState;
+import frc.robot.RobotState.SwerveState;
 import frc.robot.commands.Autos.DownL4;
 import frc.robot.commands.Autos.DownOneL4;
 import frc.robot.commands.Autos.L4Up;
@@ -32,6 +33,7 @@ import frc.robot.commands.Elevator.GoToLevelCommand;
 import frc.robot.commands.Intake.CoralAdjust;
 import frc.robot.commands.Intake.CoralIntake;
 import frc.robot.commands.Intake.DropCoral;
+import frc.robot.commands.Swerve.SmoothDrive;
 import frc.robot.constants.elevatorConstant;
 import frc.robot.constants.intakeConstants;
 import frc.robot.subsystems.Elavator.ElevatorSubsystem;
@@ -111,8 +113,10 @@ public class RobotContainer {
     public void configureBindings(){
 
         //Precise Drive
-        m_driverController.leftBumper().whileTrue(preciseDrive);
+       // m_driverController.leftBumper().whileTrue(preciseDrive);
         m_driverController.rightBumper().whileTrue(preciseDrive2);
+
+        m_driverController.leftBumper().whileTrue(new SmoothDrive(drivebase, 0.095, this.m_driverController).alongWith(Commands.defer(() -> SwerveState.getCommand(), Set.of(drivebase)))); //DELETE IF NOT WORKING
 
         //Game Score Manipulation
         m_driverController.leftTrigger().onTrue(
@@ -133,22 +137,15 @@ public class RobotContainer {
        // m_driverController.y().onTrue(Commands.runOnce(() -> intake.setIntakeSpeed(intakeConstants.AlgeaIntakeSpeed), intake));
 
 
-        // //Elevator Levels
-        // m_driverAsisstant.povLeft().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kBase));
+        //Elevator Levels
+        m_driverAsisstant.povLeft().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kBase));
 
-        // m_driverAsisstant.povDown().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL2));
+        m_driverAsisstant.povDown().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL2));
 
-        // m_driverAsisstant.povRight().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL3));
+        m_driverAsisstant.povRight().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL3));
 
-        // m_driverAsisstant.povUp().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL4));
+        m_driverAsisstant.povUp().onTrue(new GoToLevelCommand(elevator,elevatorConstant.kElevatorL4));
 
-        //Lazy Elevator Commands
-        m_driverAsisstant.povLeft().onTrue(Commands.runOnce(() -> this.elevatorLevel = elevatorConstant.kBase));
-        m_driverAsisstant.povDown().onTrue(Commands.runOnce(() -> this.elevatorLevel = elevatorConstant.kElevatorL2));
-        m_driverAsisstant.povRight().onTrue(Commands.runOnce(() -> this.elevatorLevel = elevatorConstant.kElevatorL3));
-        m_driverAsisstant.povUp().onTrue(Commands.runOnce(() -> this.elevatorLevel = elevatorConstant.kElevatorL4));
-
-        m_driverController.x().onTrue(new GoToLevelCommand(elevator, this.elevatorLevel));
 
 
         //m_driverAsisstant.a().onTrue(new GoToLevelCommand(elevator, elevatorConstant.kElevatorAlgeaLeveL1));
