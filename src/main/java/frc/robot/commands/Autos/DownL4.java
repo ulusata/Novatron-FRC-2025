@@ -69,6 +69,9 @@ public class DownL4 extends SequentialCommandGroup {
         new DropCoral(intake, elevator),
         new WaitCommand(0.2),
         new GoToLevelCommand(elevator, elevatorConstant.kElevatorL1)
+      ),
+      new SequentialCommandGroup(
+        AutoBuilder.followPath(pathGroup.get(3))
       )
     );
       

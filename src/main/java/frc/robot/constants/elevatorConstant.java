@@ -28,7 +28,7 @@ public class elevatorConstant {
 
     //Levels
     public static final double kElevatorL1 = 0;
-    public static final double kElevatorL2 = 15; //15
+    public static final double kElevatorL2 = 13.2; //15
     public static final double kElevatorL3 = 30.5; //30.5
     public static final double kElevatorL4 = 59; //59
     public static final double kBase = 0;

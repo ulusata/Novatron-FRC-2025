@@ -64,10 +64,7 @@ public class L4Up extends SequentialCommandGroup {
       ),
       new SequentialCommandGroup(
         AutoBuilder.followPath(pathGroup.get(2)),
-        new GoToLevelCommand(elevator, elevatorConstant.kElevatorL4),
-          new DropCoral(intake, elevator),
-          new WaitCommand(0.2),
-          new GoToLevelCommand(elevator, elevatorConstant.kElevatorL1)
+        new GoToLevelCommand(elevator, elevatorConstant.kElevatorL4)
       )
     );
       
