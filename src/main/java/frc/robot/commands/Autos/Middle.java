@@ -49,6 +49,7 @@ public class Middle extends SequentialCommandGroup {
       Commands.runOnce(() -> swerve.zeroGyroWithAlliance()),
       AutoBuilder.resetOdom(pathGroup.get(0).getStartingHolonomicPose().get()),
       new SequentialCommandGroup(
+        new WaitCommand(3),
          new ParallelCommandGroup(
           AutoBuilder.followPath(pathGroup.get(0)),
           new CoralIntake(intake)
