@@ -21,6 +21,12 @@
           "data": {
             "pathName": "UpSourceToReef"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ReefToSource"
+          }
         }
       ]
     }
